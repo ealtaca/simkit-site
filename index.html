@@ -222,8 +222,17 @@
             padding: 6px 12px 6px 8px; border: 1px solid var(--divider); border-radius: 999px; background: rgba(21,23,28,.7);
         }
         .pills { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
-        .pill-os { color: var(--purple); border-color: rgba(199,146,234,.35); background: rgba(199,146,234,.08); padding-left: 12px; }
-        .pill-os svg { width: 14px; height: 14px; }
+        .pill-free {
+            font-family: inherit; font-size: 13.5px; font-weight: 600; color: #FFD3E2;
+            padding: 6px 14px 6px 10px; gap: 7px;
+            border-color: rgba(247,143,179,.4);
+            background: linear-gradient(135deg, rgba(247,143,179,.16), rgba(255,180,84,.10));
+            box-shadow: 0 0 24px -6px rgba(247,143,179,.45);
+            transition: transform .25s cubic-bezier(.3,1.6,.5,1);
+        }
+        .pill-free:hover { transform: rotate(-3deg) scale(1.06); }
+        .pill-free svg { width: 15px; height: 15px; color: var(--pink); animation: beat 1.8s ease-in-out infinite; }
+        @keyframes beat { 0%, 60%, 100% { transform: scale(1); } 15% { transform: scale(1.22); } 30% { transform: scale(.95); } 45% { transform: scale(1.12); } }
         .pill b { font-weight: 500; color: var(--green); background: rgba(61,220,151,.12); padding: 2px 8px; border-radius: 999px; }
         h1 {
             font-size: clamp(40px, 7.2vw, 84px); font-weight: 800; line-height: 1.02; letter-spacing: -.045em;
@@ -342,7 +351,8 @@
         @media (prefers-reduced-motion: reduce) {
             html { scroll-behavior: auto; }
             .js .rv { opacity: 1; transform: none; transition: none; }
-            .btn, .card { transition: none; }
+            .btn, .card, .pill-free { transition: none; }
+            .pill-free svg { animation: none; }
         }
 
         @media (max-width: 960px) {
@@ -395,7 +405,7 @@
     <div class="wrap">
         <div class="pills">
             <span class="pill"><b>1.7</b> Ready for Xcode 27 and Device Hub</span>
-            <span class="pill pill-os"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>Open source soon</span>
+            <span class="pill pill-free"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>Free. Save your rocket fuel.</span>
         </div>
         <h1 >The missing toolkit<br><span class="soft">for iOS Simulator.</span></h1>
         <p class="lead">Push, location, capture and accessibility tools for any app, in one panel beside your simulator. Add a one-line SDK for network, mocks and throttling.</p>
