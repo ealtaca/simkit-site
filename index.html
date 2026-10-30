@@ -82,7 +82,7 @@
       "name": "Does my data leave my Mac?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Captured requests, headers, bodies and tokens stay on your Mac. SimKit sends anonymous usage analytics and crash reports through Firebase. See the Privacy Policy for details."
+        "text": "Captured requests, headers, bodies and tokens stay on your Mac. SimKit sends anonymous usage data, including the bundle IDs of apps you debug, to Firebase, and you can turn it off in Settings. See the Privacy Policy for details."
       }
     },
     {
@@ -189,9 +189,13 @@
         }
         .nav-inner { display: flex; align-items: center; justify-content: space-between; height: 64px; }
         .brand { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 17px; letter-spacing: -.01em; }
-        .brand img { width: 28px; height: 28px; border-radius: 7px; }
+        .brand img { width: 36px; height: 36px; border-radius: 9px; }
         .nav-links { display: flex; align-items: center; gap: 28px; font-size: 14px; color: var(--text-2); }
         .nav-links a:not(.btn):hover { color: var(--text); }
+        .nav-links { position: relative; }
+        .icon-btn { display: inline-grid; place-items: center; width: 36px; height: 36px; border-radius: 10px; border: 1px solid var(--divider); background: rgba(255,255,255,.04); color: var(--text); cursor: pointer; }
+        .icon-btn svg { width: 18px; height: 18px; }
+        .show-sm { display: none; }
 
         /* Buttons */
         .btn {
@@ -203,12 +207,42 @@
         }
         .btn svg { width: 18px; height: 18px; flex-shrink: 0; }
         .btn:hover { transform: translateY(-1px); }
-        .btn-primary { background: var(--accent); color: var(--on-accent); box-shadow: 0 8px 30px -8px rgba(124,156,255,.6); }
-        .btn-primary:hover { background: #91ADFF; }
+        .btn-primary {
+            background: linear-gradient(180deg, rgba(124,156,255,.22), rgba(124,156,255,.08)); color: #fff;
+            border: 1px solid rgba(124,156,255,.55);
+            box-shadow: 0 0 0 1px rgba(124,156,255,.12), 0 8px 34px -8px rgba(124,156,255,.6), inset 0 1px 0 rgba(255,255,255,.12);
+            -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px);
+        }
+        .btn-primary:hover { background: linear-gradient(180deg, rgba(124,156,255,.32), rgba(124,156,255,.14)); border-color: rgba(124,156,255,.8); }
         .btn-ghost { background: rgba(255,255,255,.04); color: var(--text); border: 1px solid var(--divider); }
         .btn-ghost:hover { border-color: #3A4050; background: rgba(255,255,255,.07); }
         .btn-sm { padding: 9px 14px; font-size: 13.5px; border-radius: 10px; }
         .btn-sm svg { width: 15px; height: 15px; }
+        .btn[hidden] { display: none; }
+        .ver { font-family: var(--mono); font-size: .82em; font-weight: 500; padding: 3px 7px; margin-right: -6px; border-radius: 6px; background: rgba(255,255,255,.08); color: var(--text-2); }
+        .btn-primary .ver { background: rgba(124,156,255,.2); color: #CBD6FF; }
+        .btn-sm .ver { margin-right: -4px; padding: 2px 6px; }
+        .ver-beta { color: var(--amber); background: rgba(255,180,84,.12); }
+
+        /* Nav download: stable on the left, other builds behind the arrow */
+        .split { position: relative; display: inline-flex; }
+        .split .btn:hover { transform: none; }
+        .split-main { border-top-right-radius: 0; border-bottom-right-radius: 0; border-right: 0; }
+        .split-arrow { padding: 9px 9px; border-top-left-radius: 0; border-bottom-left-radius: 0; border-left-color: rgba(124,156,255,.35); cursor: pointer; font: inherit; }
+        .split-arrow svg { transition: transform .2s; }
+        .split-arrow[aria-expanded="true"] svg { transform: rotate(180deg); }
+        .menu {
+            position: absolute; right: 0; top: calc(100% + 8px); width: 270px; padding: 6px;
+            display: grid; gap: 2px; background: var(--bg-2); border: 1px solid var(--divider); border-radius: 14px;
+            box-shadow: 0 24px 60px -12px rgba(0,0,0,.75);
+        }
+        .menu[hidden], .menu-item[hidden] { display: none; }
+        .menu-item { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 12px; border-radius: 9px; color: var(--text); }
+        .menu-item:hover { background: var(--bg-3); }
+        .menu-item strong { display: block; font-size: 14px; font-weight: 600; line-height: 1.3; }
+        .menu-item small { display: block; font-size: 12.5px; color: var(--text-3); line-height: 1.35; }
+        .menu-item.is-off { opacity: .55; }
+        .menu-item.is-off:hover { background: none; }
 
         /* Hero */
         .hero { position: relative; padding: 140px 0 40px; text-align: center; isolation: isolate; }
@@ -221,6 +255,45 @@
             font-family: var(--mono); font-size: 12.5px; color: var(--text-2);
             padding: 6px 12px 6px 8px; border: 1px solid var(--divider); border-radius: 999px; background: rgba(21,23,28,.7);
         }
+        /* The rocket from the app icon as a small mark above the headline, stars streaming past */
+        .mark { position: relative; width: 52px; margin: 0 auto 30px; animation: bob 3.2s ease-in-out infinite; }
+        .mark svg { display: block; width: 100%; height: auto; overflow: visible; filter: drop-shadow(0 0 20px rgba(124,156,255,.7)); }
+        .mark .ex { animation: glow 1.4s ease-in-out infinite alternate; }
+        .puffs { position: absolute; left: 50%; top: 92%; }
+        .puffs i {
+            position: absolute; left: -12px; top: 0; width: 24px; height: 24px; border-radius: 50%; opacity: 0;
+            background: radial-gradient(closest-side, rgba(225,234,255,.85), transparent);
+            animation: puff 2.6s ease-out infinite;
+        }
+        .puffs i:nth-child(2) { animation-delay: .65s; --dx: -13px; }
+        .puffs i:nth-child(3) { animation-delay: 1.3s; --dx: 12px; }
+        .puffs i:nth-child(4) { animation-delay: 1.95s; --dx: -4px; }
+        .sky {
+            position: absolute; z-index: -1; inset: 0 0 auto; height: 900px; overflow: hidden; pointer-events: none;
+            mask-image: linear-gradient(180deg, #000 55%, transparent); -webkit-mask-image: linear-gradient(180deg, #000 55%, transparent);
+        }
+        .stars, .stars::before { position: absolute; inset: -400px 0 0; }
+        .stars {
+            background-image: radial-gradient(1px 1px at 20px 30px, rgba(255,255,255,.55), transparent), radial-gradient(1px 1px at 90px 140px, rgba(255,255,255,.4), transparent), radial-gradient(1.5px 1.5px at 160px 80px, rgba(200,215,255,.6), transparent);
+            background-size: 200px 200px; animation: stream 14s linear infinite;
+        }
+        .stars::before {
+            content: ""; inset: 0;
+            background-image: radial-gradient(1px 1px at 50px 60px, rgba(255,255,255,.35), transparent), radial-gradient(1px 1px at 130px 170px, rgba(255,255,255,.3), transparent);
+            background-size: 160px 160px; animation: stream 24s linear infinite;
+        }
+        .streak { position: absolute; top: -60px; width: 1px; height: 54px; background: linear-gradient(180deg, transparent, rgba(170,190,255,.45)); animation: fall 3.2s linear infinite; }
+        .streak:nth-child(2) { left: 12%; animation-delay: -.4s; }
+        .streak:nth-child(3) { left: 27%; animation-delay: -2.1s; animation-duration: 3.8s; }
+        .streak:nth-child(4) { left: 41%; animation-delay: -1.2s; animation-duration: 4.4s; }
+        .streak:nth-child(5) { left: 63%; animation-delay: -2.9s; }
+        .streak:nth-child(6) { left: 78%; animation-delay: -.9s; animation-duration: 3.6s; }
+        .streak:nth-child(7) { left: 90%; animation-delay: -2.4s; animation-duration: 4.2s; }
+        @keyframes bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-7px); } }
+        @keyframes glow { from { opacity: .65; } to { opacity: 1; } }
+        @keyframes puff { 0% { opacity: 0; transform: translate(0, 0) scale(.5); } 20% { opacity: .7; } 100% { opacity: 0; transform: translate(var(--dx, 7px), 58px) scale(2.2); } }
+        @keyframes stream { to { transform: translateY(400px); } }
+        @keyframes fall { to { transform: translateY(960px); } }
         .pills { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
         .pill-free {
             font-family: inherit; font-size: 13.5px; font-weight: 600; color: #FFD3E2;
@@ -316,6 +389,10 @@
         /* SDK */
         .sdk { display: grid; grid-template-columns: 1fr 1fr; gap: 56px; align-items: center; background: linear-gradient(180deg, var(--bg-2), var(--bg)); border: 1px solid var(--divider); border-radius: 24px; padding: 56px; }
         .sdk p { color: var(--text-2); font-size: 17px; margin-bottom: 26px; }
+        .facts { list-style: none; display: grid; gap: 9px; margin: -8px 0 28px; font-size: 14.5px; color: var(--text-2); }
+        .facts li { position: relative; padding-left: 24px; }
+        .facts li::before { content: ""; position: absolute; left: 3px; top: .42em; width: 10px; height: 5px; border-left: 2px solid var(--k); border-bottom: 2px solid var(--k); transform: rotate(-45deg); }
+        a.pill:hover { border-color: #3A4050; color: var(--text); }
         .code { font-family: var(--mono); font-size: 14px; line-height: 1.75; background: var(--bg-deep); border: 1px solid var(--divider); border-radius: 14px; overflow: hidden; }
         .code-bar { display: flex; gap: 7px; padding: 12px 16px; border-bottom: 1px solid var(--divider); }
         .code-bar i { width: 11px; height: 11px; border-radius: 50%; display: block; }
@@ -337,7 +414,7 @@
             content: ""; position: absolute; z-index: -1; left: 50%; bottom: 0; width: 900px; height: 520px; transform: translateX(-50%);
             background: radial-gradient(closest-side, rgba(124,156,255,.18), transparent);
         }
-        .final img.icon { width: 88px; height: 88px; margin: 0 auto 28px; border-radius: 20px; box-shadow: 0 20px 60px -10px rgba(124,156,255,.5); }
+        .final img.icon { width: 120px; height: 120px; margin: 0 auto 28px; border-radius: 20px; box-shadow: 0 20px 60px -10px rgba(124,156,255,.5); }
         .final p { color: var(--text-2); font-size: 18px; margin: 0 auto 34px; max-width: 520px; }
 
         footer { border-top: 1px solid var(--divider); padding: 36px 0; font-size: 14px; color: var(--text-3); }
@@ -353,6 +430,8 @@
             .js .rv { opacity: 1; transform: none; transition: none; }
             .btn, .card, .pill-free { transition: none; }
             .pill-free svg { animation: none; }
+            .mark, .mark .ex, .stars, .stars::before, .streak { animation: none; }
+            .puffs, .streak { display: none; }
         }
 
         @media (max-width: 960px) {
@@ -367,7 +446,10 @@
         @media (max-width: 640px) {
             .wrap { padding: 0 16px; }
             .nav-links .hide-sm { display: none; }
+            .nav-links { gap: 10px; }
+            .nav-links .show-sm { display: inline-grid; }
             .hero { padding-top: 112px; }
+            .mark { width: 40px; margin-bottom: 24px; }
             .hero-shot { margin-top: 44px; }
             .frame { border-radius: 12px; }
             .cta-row .btn { width: 100%; }
@@ -387,24 +469,52 @@
 
 <nav id="nav">
     <div class="wrap nav-inner">
-        <a href="#" class="brand"><img src="assets/icon-64.png" alt="" width="28" height="28">SimKit</a>
+        <a href="#" class="brand"><img src="assets/icon-96.png" alt="" width="36" height="36">SimKit</a>
         <div class="nav-links">
             <a href="#features" class="hide-sm">Features</a>
             <a href="#sdk" class="hide-sm">SDK</a>
             <a href="#faq" class="hide-sm">FAQ</a>
-            <a href="https://apps.apple.com/en/app/simkit-simulator-toolkit/id6756196371?mt=12" class="btn btn-primary btn-sm" target="_blank" rel="noopener">
-                <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-                Get SimKit
-            </a>
+            <a href="changelog.html" class="hide-sm">Changelog</a>
+            <button type="button" class="icon-btn show-sm" aria-label="Sections" aria-haspopup="true" aria-expanded="false" aria-controls="more-menu" data-popover>
+                <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="20" y2="17"/></svg>
+            </button>
+            <div class="menu" id="more-menu" hidden>
+                <a href="#features" class="menu-item"><strong>Features</strong></a>
+                <a href="#sdk" class="menu-item"><strong>SDK</strong></a>
+                <a href="#faq" class="menu-item"><strong>FAQ</strong></a>
+                <a href="changelog.html" class="menu-item"><strong>Changelog</strong></a>
+            </div>
+            <div class="split" id="dl">
+                <a href="https://github.com/ealtaca/simkit-website/releases/latest/download/SimKit.dmg" class="btn btn-primary btn-sm split-main">
+                    <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                    Download <span class="ver" data-ver="dmg">1.7</span>
+                </a>
+                <button type="button" class="btn btn-primary btn-sm split-arrow" aria-label="Other builds" aria-haspopup="true" aria-expanded="false" aria-controls="dl-menu" data-popover><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></button>
+                <div class="menu" id="dl-menu" hidden>
+                    <a href="https://github.com/ealtaca/simkit-website/releases/latest/download/SimKit.dmg" class="menu-item"><span><strong>Stable</strong><small>Signed DMG, updates itself</small></span><span class="ver" data-ver="dmg">1.7</span></a>
+                    <a href="#" class="menu-item" data-beta hidden><span><strong>Beta</strong><small>Newest features, rougher edges</small></span><span class="ver ver-beta" data-ver="beta"></span></a>
+                    <span class="menu-item is-off" data-nobeta><span><strong>Beta</strong><small>No beta build right now</small></span></span>
+                    <a href="https://apps.apple.com/en/app/simkit-simulator-toolkit/id6756196371?mt=12" class="menu-item" target="_blank" rel="noopener"><span><strong>Mac App Store</strong><small>Updates through the store</small></span><span class="ver" data-ver="appstore">1.6</span></a>
+                </div>
+            </div>
         </div>
     </div>
 </nav>
 
 <header class="hero">
     <div class="grid-bg"></div>
+    <div class="sky" aria-hidden="true"><div class="stars"></div><span class="streak"></span><span class="streak"></span><span class="streak"></span><span class="streak"></span><span class="streak"></span><span class="streak"></span></div>
     <div class="wrap">
+        <div class="mark" aria-hidden="true">
+            <svg viewBox="180 90 460 860">
+                <defs><linearGradient id="rk-body" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFFFFF"/><stop offset="1" stop-color="#C9D8FF"/></linearGradient></defs>
+                <path fill="url(#rk-body)" fill-rule="evenodd" d="M410 110 C 470 150, 550 260, 550 420 L 550 535 C 598 570, 628 650, 618 738 Q 615 765, 590 752 L 505 692 L 492 692 L 492 714 Q 492 724, 482 724 L 338 724 Q 328 724, 328 714 L 328 692 L 315 692 L 230 752 Q 205 765, 202 738 C 192 650, 222 570, 270 535 L 270 420 C 270 260, 350 150, 410 110 Z M360 357 a 50 50 0 1 0 100 0 a 50 50 0 1 0 -100 0 Z"/>
+                <path class="ex" fill="url(#rk-body)" d="M345 760 Q 347 750, 355 756 L 410 842 L 465 756 Q 473 750, 475 760 C 480 830, 440 885, 410 930 C 380 885, 340 830, 345 760 Z"/>
+            </svg>
+            <div class="puffs"><i></i><i></i><i></i><i></i></div>
+        </div>
         <div class="pills">
-            <span class="pill"><b>1.7</b> Ready for Xcode 27 and Device Hub</span>
+            <a class="pill" href="changelog.html#1.7"><b>1.7</b> Ready for Xcode 27 and Device Hub</a>
             <span class="pill pill-free"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>Free. Save your rocket fuel.</span>
         </div>
         <h1 >The missing toolkit<br><span class="soft">for iOS Simulator.</span></h1>
@@ -412,11 +522,11 @@
         <div class="cta-row">
             <a href="https://apps.apple.com/en/app/simkit-simulator-toolkit/id6756196371?mt=12" class="btn btn-primary" target="_blank" rel="noopener">
                 <svg aria-hidden="true" viewBox="0 0 24 24" fill="currentColor"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
-                Mac App Store
+                Mac App Store <span class="ver" data-ver="appstore">1.6</span>
             </a>
             <a href="https://github.com/ealtaca/simkit-website/releases/latest/download/SimKit.dmg" class="btn btn-ghost">
                 <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-                Download DMG
+                Download DMG <span class="ver" data-ver="dmg">1.7</span>
             </a>
         </div>
         <p class="fine">Free · macOS 14 or later · DMG signed and notarized by Apple</p>
@@ -532,8 +642,8 @@
         <div class="mid-cta rv">
             <p><strong>Free, no account.</strong> Get it in a minute.</p>
             <div class="cta-row">
-                <a href="https://apps.apple.com/en/app/simkit-simulator-toolkit/id6756196371?mt=12" class="btn btn-primary btn-sm" target="_blank" rel="noopener">Mac App Store</a>
-                <a href="https://github.com/ealtaca/simkit-website/releases/latest/download/SimKit.dmg" class="btn btn-ghost btn-sm">Download DMG</a>
+                <a href="https://apps.apple.com/en/app/simkit-simulator-toolkit/id6756196371?mt=12" class="btn btn-primary btn-sm" target="_blank" rel="noopener">Mac App Store <span class="ver" data-ver="appstore">1.6</span></a>
+                <a href="https://github.com/ealtaca/simkit-website/releases/latest/download/SimKit.dmg" class="btn btn-ghost btn-sm">Download DMG <span class="ver" data-ver="dmg">1.7</span></a>
             </div>
         </div>
     </div>
@@ -589,6 +699,11 @@
                 <span class="eyebrow">SimKit SDK</span>
                 <h2>One line for the deep stuff.</h2>
                 <p>Add the SDK to unlock network monitoring, mocks, throttling, WebSocket and performance insights. Enable it inside <code>#if DEBUG</code> and nothing runs in your release builds.</p>
+                <ul class="facts">
+                    <li>Talks only to SimKit on your Mac, over 127.0.0.1. No analytics inside.</li>
+                    <li>About 0.9 MB in a device build. iOS 13 or later.</li>
+                    <li>Swift Package Manager, plus one Info.plist key: <code>NSAllowsLocalNetworking</code>.</li>
+                </ul>
                 <a href="https://github.com/ealtaca/SimKitSDK-Binary" class="btn btn-ghost" target="_blank" rel="noopener">
                     <svg aria-hidden="true" viewBox="0 0 24 24" fill="currentColor"><path d="M12 .3a12 12 0 0 0-3.8 23.4c.6.1.8-.3.8-.6v-2c-3.3.7-4-1.6-4-1.6-.6-1.4-1.4-1.8-1.4-1.8-1-.7.1-.7.1-.7 1.2.1 1.8 1.2 1.8 1.2 1 1.8 2.8 1.3 3.5 1 0-.8.4-1.3.7-1.6-2.7-.3-5.5-1.3-5.5-6 0-1.2.5-2.3 1.3-3.1-.2-.4-.6-1.6 0-3.2 0 0 1-.3 3.4 1.2a11.5 11.5 0 0 1 6 0c2.3-1.5 3.3-1.2 3.3-1.2.6 1.6.2 2.8 0 3.2.9.8 1.3 1.9 1.3 3.2 0 4.6-2.8 5.6-5.5 5.9.5.4.9 1 .9 2.2v3.3c0 .3.1.7.8.6A12 12 0 0 0 12 .3"/></svg>
                     View on GitHub
@@ -621,7 +736,7 @@
         <div class="faq rv">
             <details><summary>Is SimKit really free?</summary><p>Yes. SimKit is free with no account. Get it from the Mac App Store, or download the signed and notarized DMG from this site.</p></details>
             <details><summary>Do I need the SDK?</summary><p>No. Capture, push, deep links, location, accessibility, biometrics and debug tools work with any app. The SimKit SDK adds network monitoring, mocks and throttling. It is one line of Swift, and you enable it inside <code>#if DEBUG</code>.</p></details>
-            <details><summary>Does my data leave my Mac?</summary><p>Captured requests, headers, bodies and tokens stay on your Mac. SimKit sends anonymous usage analytics and crash reports through Firebase. See the <a href="privacy-policy.html">Privacy Policy</a> for details.</p></details>
+            <details><summary>Does my data leave my Mac?</summary><p>Captured requests, headers, bodies and tokens stay on your Mac. SimKit sends anonymous usage data, including the bundle IDs of apps you debug, to Firebase, and you can turn it off in Settings. See the <a href="privacy-policy.html">Privacy Policy</a> for details.</p></details>
             <details><summary>Is SimKit open source?</summary><p>Not yet, but it will be soon. The app&#x27;s source code will be published on GitHub.</p></details>
             <details><summary>Does SimKit work with Xcode 27?</summary><p>Yes. SimKit 1.7 supports the new Device Hub in Xcode 27 as well as Simulator.app in earlier versions.</p></details>
             <details><summary>What macOS version does SimKit require?</summary><p>macOS 14 (Sonoma) or later.</p></details>
@@ -632,17 +747,17 @@
 
 <section class="final">
     <div class="wrap rv">
-        <img class="icon" src="assets/icon-176.png" alt="SimKit icon" width="88" height="88" loading="lazy">
+        <img class="icon" src="assets/icon-256.png" alt="SimKit icon" width="120" height="120" loading="lazy">
         <h2>Stop fighting<br>the Simulator.</h2>
         <p>Free on the Mac App Store, or as a DMG straight from here.</p>
         <div class="cta-row">
             <a href="https://apps.apple.com/en/app/simkit-simulator-toolkit/id6756196371?mt=12" class="btn btn-primary" target="_blank" rel="noopener">
                 <svg aria-hidden="true" viewBox="0 0 24 24" fill="currentColor"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
-                Mac App Store
+                Mac App Store <span class="ver" data-ver="appstore">1.6</span>
             </a>
             <a href="https://github.com/ealtaca/simkit-website/releases/latest/download/SimKit.dmg" class="btn btn-ghost">
                 <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-                Download DMG
+                Download DMG <span class="ver" data-ver="dmg">1.7</span>
             </a>
         </div>
     </div>
@@ -651,11 +766,12 @@
 
 <footer>
     <div class="wrap foot">
-        <a href="#" class="brand"><img src="assets/icon-64.png" alt="" width="28" height="28">SimKit</a>
+        <a href="#" class="brand"><img src="assets/icon-96.png" alt="" width="36" height="36">SimKit</a>
         <div class="links">
             <a href="https://apps.apple.com/en/app/simkit-simulator-toolkit/id6756196371?mt=12" target="_blank" rel="noopener">Mac App Store</a>
             <a href="https://github.com/ealtaca/simkit-website/releases/latest/download/SimKit.dmg">Direct Download</a>
             <a href="https://github.com/ealtaca/SimKitSDK-Binary" target="_blank" rel="noopener">SDK</a>
+            <a href="changelog.html">Changelog</a>
             <a href="privacy-policy.html">Privacy</a>
             <a href="terms-of-use.html">Terms</a>
             <a href="mailto:ealtaca@gmail.com">Contact</a>
@@ -681,6 +797,42 @@
     } else {
         items.forEach(el => el.classList.add('in'));
     }
+
+    // Nav popovers: the other builds behind the download arrow, and the sections on phones.
+    document.querySelectorAll('[data-popover]').forEach(button => {
+        const menu = document.getElementById(button.getAttribute('aria-controls'));
+        const setOpen = open => { menu.hidden = !open; button.setAttribute('aria-expanded', open); };
+        button.addEventListener('click', () => setOpen(menu.hidden));
+        menu.addEventListener('click', e => { if (e.target.closest('a')) setOpen(false); });
+        document.addEventListener('click', e => { if (!button.contains(e.target) && !menu.contains(e.target)) setOpen(false); });
+        document.addEventListener('keydown', e => { if (e.key === 'Escape') setOpen(false); });
+    });
+
+    // Versions on the download buttons. The HTML carries the last known ones,
+    // so a failed request (or GitHub's 60/hour limit) only leaves them stale.
+    const fill = (key, v) => document.querySelectorAll(`[data-ver="${key}"]`).forEach(el => el.textContent = v);
+    const tag = r => r.tag_name.replace(/^v/, '');
+    fetch('https://itunes.apple.com/lookup?id=6756196371')
+        .then(r => r.json())
+        .then(d => { const v = d.results && d.results[0] && d.results[0].version; if (v) fill('appstore', v); })
+        .catch(() => {});
+    fetch('https://api.github.com/repos/ealtaca/simkit-website/releases?per_page=20')
+        .then(r => r.json())
+        .then(list => {
+            if (!Array.isArray(list)) return;
+            const live = list.filter(r => !r.draft);
+            const stable = live.find(r => !r.prerelease);
+            const beta = live.find(r => r.prerelease);
+            if (stable) fill('dmg', tag(stable));
+            // A beta older than the stable release is stale, so the button stays hidden.
+            if (!beta || (stable && beta.published_at < stable.published_at)) return;
+            const dmg = beta.assets.find(a => a.name.endsWith('.dmg'));
+            if (!dmg) return;
+            fill('beta', tag(beta).replace(/-beta\.?/, 'b'));
+            document.querySelectorAll('[data-beta]').forEach(el => { el.href = dmg.browser_download_url; el.hidden = false; });
+            document.querySelectorAll('[data-nobeta]').forEach(el => el.hidden = true);
+        })
+        .catch(() => {});
 </script>
 </body>
 </html>
