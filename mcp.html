@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SimKit MCP — let your coding agent see what your iOS app did</title>
+    <meta name="description" content="A free MCP server for iOS development. Claude Code, Cursor and Codex can read your app's network requests, mock responses and drive the iOS Simulator through SimKit.">
+    <meta name="theme-color" content="#0E0F12">
+    <meta name="color-scheme" content="dark">
+    <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png">
+    <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+    <link rel="canonical" href="https://simkit.dev/mcp">
+    <meta property="og:title" content="SimKit MCP">
+    <meta property="og:description" content="Let your coding agent see what your iOS app actually did: requests, responses, mocks and the simulator.">
+    <meta property="og:url" content="https://simkit.dev/mcp">
+    <meta property="og:type" content="website">
+    <meta property="og:image" content="https://simkit.dev/assets/og.jpg">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700;800&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "mainEntity": [
+            { "@type": "Question", "name": "Is SimKit MCP free?", "acceptedAnswer": { "@type": "Answer", "text": "Yes. SimKit and its MCP server are free, with no account." } },
+            { "@type": "Question", "name": "Which coding agents does it work with?", "acceptedAnswer": { "@type": "Answer", "text": "Any MCP client. SimKit sets up Claude Code, Cursor, Codex and Kiro for you, and the simkit-mcp package works with any client that runs a command." } },
+            { "@type": "Question", "name": "Does my app's data leave my Mac?", "acceptedAnswer": { "@type": "Answer", "text": "No. The server listens on 127.0.0.1 only and needs a token. SimKit uploads nothing your app sent or received. What your agent reads, it sends to its own model provider, as with any file it reads." } },
+            { "@type": "Question", "name": "Do I need the SimKit SDK?", "acceptedAnswer": { "@type": "Answer", "text": "For the simulator tools, no. Network capture, mocks and throttling need the one-line SimKit SDK in your debug build, or the DMG build of SimKit." } },
+            { "@type": "Question", "name": "Can the agent tap and type in my app?", "acceptedAnswer": { "@type": "Answer", "text": "No. SimKit observes and sets things up: requests, mocks, app data, simulator settings and screenshots. Use it next to the tool you already build and tap with." } }
+        ]
+    }
+    </script>
+    <style>
+        :root {
+            --bg: #0E0F12; --bg-deep: #0A0B0E; --bg-2: #15171C; --bg-3: #1C1F26; --divider: #262A33;
+            --text: #E6E8EE; --text-2: #9AA1B2; --text-3: #7C8496;
+            --accent: #7C9CFF; --green: #3DDC97; --amber: #FFB454; --purple: #C792EA; --blue: #6CB6FF;
+            --mono: "Geist Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: "Geist", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; -webkit-font-smoothing: antialiased; }
+        a { color: inherit; text-decoration: none; }
+        .wrap { max-width: 880px; margin: 0 auto; padding: 0 24px; }
+
+        nav { border-bottom: 1px solid var(--divider); }
+        .nav-inner { display: flex; align-items: center; justify-content: space-between; height: 64px; max-width: 1180px; margin: 0 auto; padding: 0 24px; }
+        .brand { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 17px; letter-spacing: -.01em; }
+        .brand img { width: 36px; height: 36px; border-radius: 9px; }
+        .btn {
+            display: inline-flex; align-items: center; gap: 8px; font-weight: 600; font-size: 13.5px; line-height: 1;
+            padding: 9px 14px; border-radius: 10px; color: #fff; border: 1px solid rgba(124,156,255,.55);
+            background: linear-gradient(180deg, rgba(124,156,255,.22), rgba(124,156,255,.08));
+            box-shadow: 0 0 0 1px rgba(124,156,255,.12), 0 8px 34px -8px rgba(124,156,255,.6), inset 0 1px 0 rgba(255,255,255,.12);
+        }
+        .btn:hover { border-color: rgba(124,156,255,.8); }
+        .btn svg { width: 15px; height: 15px; }
+        .btn-lg { font-size: 15px; padding: 13px 20px; border-radius: 12px; }
+        .btn-ghost { background: rgba(255,255,255,.04); color: var(--text); border: 1px solid var(--divider); box-shadow: none; }
+        .btn-ghost:hover { border-color: #3A4050; }
+
+        header { padding: 72px 0 8px; }
+        .eyebrow { font-family: var(--mono); font-size: 12.5px; letter-spacing: .14em; text-transform: uppercase; color: var(--accent); }
+        h1 { font-size: clamp(36px, 6vw, 56px); font-weight: 800; line-height: 1.05; letter-spacing: -.04em; margin-top: 14px; text-wrap: balance; }
+        h1 .soft { color: var(--text-2); }
+        .lead { margin-top: 18px; color: var(--text-2); font-size: clamp(17px, 2vw, 19px); max-width: 640px; }
+        .fine { margin-top: 14px; font-size: 13.5px; color: var(--text-3); }
+        .fine a, p a, li a { color: var(--text); border-bottom: 1px solid var(--divider); }
+
+        section { padding: 72px 0 0; }
+        h2 { font-size: clamp(26px, 3.6vw, 36px); font-weight: 750; letter-spacing: -.03em; line-height: 1.12; margin: 10px 0 14px; text-wrap: balance; }
+        section > p { color: var(--text-2); font-size: 17px; max-width: 640px; }
+        code { font-family: var(--mono); font-size: .88em; color: var(--text); background: var(--bg-3); padding: 1px 5px; border-radius: 5px; }
+
+        /* Code blocks */
+        .code { position: relative; font-family: var(--mono); font-size: 13.5px; line-height: 1.75; background: var(--bg-deep); border: 1px solid var(--divider); border-radius: 14px; overflow: hidden; margin-top: 14px; }
+        .code-bar { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 9px 12px 9px 16px; border-bottom: 1px solid var(--divider); font-size: 12px; color: var(--text-3); letter-spacing: .02em; }
+        .code pre { padding: 16px 18px; overflow-x: auto; color: var(--text); }
+        .code pre code { background: none; padding: 0; font-size: inherit; }
+        .copy { font: inherit; font-size: 12px; color: var(--text-2); background: rgba(255,255,255,.04); border: 1px solid var(--divider); border-radius: 7px; padding: 4px 9px; cursor: pointer; }
+        .copy:hover { color: var(--text); border-color: #3A4050; }
+        .copy:focus-visible, .btn:focus-visible, summary:focus-visible, a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+        .c-c { color: var(--text-3); } .c-k { color: var(--purple); } .c-t { color: var(--blue); } .c-s { color: var(--green); }
+
+        /* Session transcript */
+        .session { margin-top: 40px; border: 1px solid var(--divider); border-radius: 14px; background: var(--bg-deep); overflow: hidden; }
+        .session .who { font-family: var(--mono); font-size: 11.5px; letter-spacing: .08em; text-transform: uppercase; color: var(--text-3); }
+        .turn { padding: 16px 18px; border-top: 1px solid var(--divider); }
+        .turn:first-child { border-top: 0; }
+        .turn p { margin-top: 6px; color: var(--text); font-size: 15.5px; }
+        .calls { list-style: none; display: grid; gap: 6px; margin-top: 10px; font-family: var(--mono); font-size: 13px; }
+        .calls li { display: grid; grid-template-columns: minmax(0, 190px) 1fr; gap: 14px; color: var(--text-2); }
+        .calls b { font-weight: 500; color: var(--blue); overflow-wrap: anywhere; }
+        .calls .bad { color: var(--amber); }
+        .note { margin-top: 10px; font-size: 13px; color: var(--text-3); }
+
+        /* Prompts */
+        .prompts { list-style: none; display: grid; gap: 10px; margin-top: 24px; }
+        .prompts li { border: 1px solid var(--divider); border-radius: 12px; padding: 14px 16px; background: var(--bg-2); color: var(--text); font-size: 15.5px; }
+        .prompts li::before { content: "“"; color: var(--text-3); margin-right: 2px; }
+        .prompts li::after { content: "”"; color: var(--text-3); margin-left: 2px; }
+
+        /* Tool groups */
+        .groups { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1px; background: var(--divider); border: 1px solid var(--divider); border-radius: 14px; overflow: hidden; margin-top: 28px; }
+        .groups div { background: var(--bg); padding: 20px; }
+        .groups h3 { font-size: 15.5px; font-weight: 650; }
+        .groups p { margin-top: 6px; font-size: 14.5px; color: var(--text-2); line-height: 1.55; }
+
+        /* Steps */
+        .steps { list-style: none; counter-reset: step; margin-top: 28px; display: grid; gap: 36px; }
+        .steps > li { counter-increment: step; position: relative; padding-left: 46px; min-width: 0; }
+        .steps > li::before { content: counter(step); position: absolute; left: 0; top: -2px; width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center; font-family: var(--mono); font-size: 13.5px; color: var(--accent); border: 1px solid rgba(124,156,255,.45); background: rgba(124,156,255,.08); }
+        .steps h3 { font-size: 18px; font-weight: 650; letter-spacing: -.01em; }
+        .steps p { margin-top: 6px; color: var(--text-2); font-size: 15.5px; max-width: 620px; }
+        .steps h4 { margin-top: 20px; font-family: var(--mono); font-size: 12px; font-weight: 500; letter-spacing: .06em; text-transform: uppercase; color: var(--text-3); }
+
+        .facts { list-style: none; display: grid; gap: 10px; margin-top: 22px; color: var(--text-2); font-size: 15.5px; max-width: 660px; }
+        .facts li { position: relative; padding-left: 24px; }
+        .facts li::before { content: ""; position: absolute; left: 3px; top: .5em; width: 10px; height: 5px; border-left: 2px solid var(--green); border-bottom: 2px solid var(--green); transform: rotate(-45deg); }
+        .facts strong { color: var(--text); font-weight: 600; }
+
+        .faq { margin-top: 18px; }
+        details { border-bottom: 1px solid var(--divider); }
+        summary { list-style: none; cursor: pointer; padding: 20px 0; font-size: 16.5px; font-weight: 600; display: flex; justify-content: space-between; gap: 20px; }
+        summary::-webkit-details-marker { display: none; }
+        summary::after { content: "+"; font-family: var(--mono); color: var(--text-3); font-weight: 400; font-size: 20px; line-height: 1; transition: transform .2s; }
+        details[open] summary::after { transform: rotate(45deg); }
+        details p { color: var(--text-2); padding: 0 0 20px; font-size: 15.5px; max-width: 660px; }
+
+        .final { text-align: center; padding: 96px 0 88px; }
+        .final p { color: var(--text-2); font-size: 17px; margin: 0 auto 28px; max-width: 480px; }
+        .cta-row { display: flex; gap: 12px; flex-wrap: wrap; }
+        .final .cta-row { justify-content: center; }
+        header .cta-row { margin-top: 28px; }
+
+        footer { border-top: 1px solid var(--divider); padding: 36px 0; font-size: 14px; color: var(--text-3); }
+        .foot { display: flex; align-items: center; justify-content: space-between; gap: 24px; flex-wrap: wrap; max-width: 1180px; margin: 0 auto; padding: 0 24px; }
+        .foot .links { display: flex; gap: 22px; flex-wrap: wrap; }
+        .foot a:hover { color: var(--text); }
+
+        @media (prefers-reduced-motion: reduce) { summary::after { transition: none; } }
+        @media (max-width: 640px) {
+            .wrap, .nav-inner, .foot { padding: 0 16px; }
+            header { padding-top: 48px; }
+            section { padding-top: 56px; }
+            .groups { grid-template-columns: 1fr; }
+            .calls li { grid-template-columns: 1fr; gap: 0; }
+            .steps > li { padding-left: 0; padding-top: 40px; }
+            .steps > li::before { top: 0; }
+        }
+    </style>
+</head>
+<body>
+
+<nav>
+    <div class="nav-inner">
+        <a href="./" class="brand"><img src="assets/icon-96.png" alt="" width="36" height="36">SimKit</a>
+        <a href="https://github.com/ealtaca/simkit-website/releases/latest/download/SimKit.dmg" class="btn">
+            <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            Download
+        </a>
+    </div>
+</nav>
+
+<main class="wrap">
+    <header>
+        <span class="eyebrow">SimKit MCP</span>
+        <h1>Your agent wrote the code.<br><span class="soft">Now let it see what the app did.</span></h1>
+        <p class="lead">Claude Code, Cursor and Codex can read your iOS app's requests and responses, mock a failing server, and drive the simulator, all through SimKit on your Mac. Free.</p>
+
+        <div class="code">
+            <div class="code-bar"><span>Terminal</span><button type="button" class="copy" data-copy="npx -y simkit-mcp">Copy</button></div>
+            <pre><code>npx -y simkit-mcp</code></pre>
+        </div>
+        <p class="fine">Needs <a href="./">SimKit</a> 1.8 or later running on the same Mac. <a href="#setup">Setup takes three steps.</a></p>
+
+        <div class="session" aria-label="An example session">
+            <div class="turn">
+                <span class="who">You</span>
+                <p>Mock /login to return a 500, relaunch the app and show me what the user sees.</p>
+            </div>
+            <div class="turn">
+                <span class="who">Agent, through SimKit</span>
+                <ul class="calls">
+                    <li><b>set_mock</b><span>POST /login answers <span class="bad">500</span></span></li>
+                    <li><b>relaunch_app</b><span>com.example.shop restarted</span></li>
+                    <li><b>wait_for_request</b><span>POST /login finished, <span class="bad">500</span> from the mock</span></li>
+                    <li><b>screenshot</b><span>the login screen, as the simulator shows it</span></li>
+                    <li><b>remove_mock</b><span>back to the real server</span></li>
+                </ul>
+                <p>The app shows a blank screen on a 500: <code>LoginViewModel</code> only handles 401. I've added an error state and checked it the same way.</p>
+            </div>
+        </div>
+        <p class="note">An illustration of a session. The tool names are SimKit's own.</p>
+    </header>
+
+    <section>
+        <span class="eyebrow">Why</span>
+        <h2>An agent can read your code. It can't see your app run.</h2>
+        <p>It doesn't know which request went out, what came back, or what happens on a 401 or a slow connection, so it guesses. SimKit already watches all of that beside your simulator. MCP hands it to the agent.</p>
+        <ul class="prompts">
+            <li>List the requests my app made in the last minute and tell me which ones failed.</li>
+            <li>Throttle the network to 3G and tell me which requests get slow.</li>
+            <li>Switch the simulator to dark mode with the largest text size and show me the screen.</li>
+            <li>Expire my auth token and check that the app refreshes it once, not five times.</li>
+            <li>Create a bug report for my app.</li>
+        </ul>
+    </section>
+
+    <section>
+        <span class="eyebrow">Tools</span>
+        <h2>About 90 tools, grouped the way you work.</h2>
+        <p>Your agent starts with the everyday ones and looks the others up as it needs them, so they don't fill its context.</p>
+        <div class="groups">
+            <div><h3>Network</h3><p>Read captured requests and WebSockets, export cURL and HAR, throttle the connection, generate Swift models and OpenAPI.</p></div>
+            <div><h3>Mocks</h3><p>Add and remove mocked responses, expire a token, play a bad-network scenario such as hotel Wi-Fi or a flapping connection.</p></div>
+            <div><h3>Simulator</h3><p>Boot, open links, set location and routes, appearance, text size, permissions, clipboard, Face ID and push notifications.</p></div>
+            <div><h3>Apps and their data</h3><p>Relaunch and reset apps; read and change UserDefaults, files, keychain, databases and cookies; save and restore an app's whole state.</p></div>
+            <div><h3>Capture</h3><p>Screenshots, video, the app's console, received pushes and links, an accessibility audit, and a zipped bug report.</p></div>
+            <div><h3>Real devices</h3><p>Many of the same tools on an iPhone or iPad that connects through the SimKit SDK or Xcode.</p></div>
+        </div>
+    </section>
+
+    <section id="setup">
+        <span class="eyebrow">Setup</span>
+        <h2>Three steps.</h2>
+        <ol class="steps">
+            <li>
+                <h3>Get SimKit</h3>
+                <p>The MCP server is part of the Mac app, in version 1.8 or later. <a href="./">Download SimKit</a>, free, from the Mac App Store or as a DMG.</p>
+            </li>
+            <li>
+                <h3>Turn on Coding Agents</h3>
+                <p>Open SimKit's panel, go to the Agents tab and switch it on. It is off until you do.</p>
+            </li>
+            <li>
+                <h3>Connect your agent</h3>
+                <p>Press Install next to your agent in the Agents tab, or add SimKit yourself:</p>
+
+                <h4>Claude Code</h4>
+                <div class="code">
+                    <div class="code-bar"><span>Terminal</span><button type="button" class="copy" data-copy="claude mcp add simkit -- npx -y simkit-mcp">Copy</button></div>
+                    <pre><code>claude mcp add simkit -- npx -y simkit-mcp</code></pre>
+                </div>
+
+                <h4>Cursor, Kiro and other clients</h4>
+                <div class="code">
+                    <div class="code-bar"><span>mcp.json</span><button type="button" class="copy" data-copy='{
+  "mcpServers": {
+    "simkit": { "command": "npx", "args": ["-y", "simkit-mcp"] }
+  }
+}'>Copy</button></div>
+<pre><code>{
+  <span class="c-t">"mcpServers"</span>: {
+    <span class="c-t">"simkit"</span>: { <span class="c-t">"command"</span>: <span class="c-s">"npx"</span>, <span class="c-t">"args"</span>: [<span class="c-s">"-y"</span>, <span class="c-s">"simkit-mcp"</span>] }
+  }
+}</code></pre>
+                </div>
+
+                <h4>Codex</h4>
+                <div class="code">
+                    <div class="code-bar"><span>~/.codex/config.toml</span><button type="button" class="copy" data-copy='[mcp_servers.simkit]
+command = "npx"
+args = ["-y", "simkit-mcp"]'>Copy</button></div>
+<pre><code><span class="c-k">[mcp_servers.simkit]</span>
+command = <span class="c-s">"npx"</span>
+args = [<span class="c-s">"-y"</span>, <span class="c-s">"simkit-mcp"</span>]</code></pre>
+                </div>
+            </li>
+        </ol>
+    </section>
+
+    <section>
+        <span class="eyebrow">Privacy</span>
+        <h2>It stays on your Mac.</h2>
+        <ul class="facts">
+            <li><strong>Local only.</strong> The server listens on 127.0.0.1 and turns away anything that isn't on your Mac.</li>
+            <li><strong>Off by default, behind a token.</strong> Nothing can connect until you turn it on, and only with the token SimKit made for you.</li>
+            <li><strong>Reads are marked as reads.</strong> Every tool says whether it changes anything, so your agent can ask before it resets an app and not before it lists requests.</li>
+            <li><strong>Nothing is uploaded by SimKit.</strong> What your agent reads, it sends to its own model provider, as with any file it reads.</li>
+        </ul>
+    </section>
+
+    <section>
+        <span class="eyebrow">FAQ</span>
+        <h2>Questions, answered.</h2>
+        <div class="faq">
+            <details><summary>Is it free?</summary><p>Yes. SimKit and its MCP server are free, with no account.</p></details>
+            <details><summary>Which coding agents does it work with?</summary><p>Any MCP client. SimKit sets up Claude Code, Cursor, Codex and Kiro for you from the Agents tab, and <code>simkit-mcp</code> works with any client that runs a command.</p></details>
+            <details><summary>Do I need the SimKit SDK?</summary><p>For the simulator tools, no. Network capture, mocks and throttling need the one-line <a href="./#sdk">SimKit SDK</a> in your debug build, or the DMG build of SimKit.</p></details>
+            <details><summary>Can the agent tap and type in my app?</summary><p>No. SimKit observes and sets things up: requests, mocks, app data, simulator settings and screenshots. Use it next to the tool you already build and tap with.</p></details>
+            <details><summary>Does my app's data leave my Mac?</summary><p>Not through SimKit. Headers and bodies reach your agent as the app sent them, tokens included, so treat them as you would any secret your agent can read. Tools that return them take a <code>redact</code> option.</p></details>
+            <details><summary>It says SimKit isn't reachable.</summary><p>Open SimKit and check that Coding Agents is on in the Agents tab. The agent connects to the app, so the app has to be running.</p></details>
+        </div>
+    </section>
+
+    <section class="final">
+        <h2>Give your agent eyes.</h2>
+        <p>Free on the Mac App Store, or as a DMG straight from here.</p>
+        <div class="cta-row">
+            <a href="https://github.com/ealtaca/simkit-website/releases/latest/download/SimKit.dmg" class="btn btn-lg">
+                <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                Download SimKit
+            </a>
+            <a href="https://apps.apple.com/en/app/simkit-simulator-toolkit/id6756196371?mt=12" class="btn btn-lg btn-ghost" target="_blank" rel="noopener">Mac App Store</a>
+        </div>
+    </section>
+</main>
+
+<footer>
+    <div class="foot">
+        <a href="./" class="brand"><img src="assets/icon-96.png" alt="" width="36" height="36">SimKit</a>
+        <div class="links">
+            <a href="https://apps.apple.com/en/app/simkit-simulator-toolkit/id6756196371?mt=12" target="_blank" rel="noopener">Mac App Store</a>
+            <a href="https://github.com/ealtaca/simkit-website/releases/latest/download/SimKit.dmg">Direct Download</a>
+            <a href="changelog.html">Changelog</a>
+            <a href="privacy-policy.html">Privacy</a>
+            <a href="terms-of-use.html">Terms</a>
+            <a href="mailto:ealtaca@gmail.com">Contact</a>
+        </div>
+    </div>
+</footer>
+
+<script>
+    document.querySelectorAll('.copy').forEach(function (button) {
+        button.addEventListener('click', function () {
+            var done = function () {
+                button.textContent = 'Copied';
+                setTimeout(function () { button.textContent = 'Copy'; }, 1600);
+            };
+            if (navigator.clipboard) {
+                navigator.clipboard.writeText(button.dataset.copy).then(done, function () {});
+            }
+        });
+    });
+</script>
+</body>
+</html>
