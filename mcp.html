@@ -24,7 +24,7 @@
         "@type": "FAQPage",
         "mainEntity": [
             { "@type": "Question", "name": "Is SimKit MCP free?", "acceptedAnswer": { "@type": "Answer", "text": "Yes. SimKit and its MCP server are free, with no account." } },
-            { "@type": "Question", "name": "Which coding agents does it work with?", "acceptedAnswer": { "@type": "Answer", "text": "Any MCP client. SimKit sets up Claude Code, Cursor, Codex and Kiro for you, and the simkit-mcp package works with any client that runs a command." } },
+            { "@type": "Question", "name": "Which coding agents does it work with?", "acceptedAnswer": { "@type": "Answer", "text": "Any MCP client. The simkit-mcp package works with any client that runs a command, including Claude Code, Cursor, Codex and Kiro." } },
             { "@type": "Question", "name": "Does my app's data leave my Mac?", "acceptedAnswer": { "@type": "Answer", "text": "No. The server listens on 127.0.0.1 only and needs a token. SimKit uploads nothing your app sent or received. What your agent reads, it sends to its own model provider, as with any file it reads." } },
             { "@type": "Question", "name": "Do I need the SimKit SDK?", "acceptedAnswer": { "@type": "Answer", "text": "For the simulator tools, no. Network capture, mocks and throttling need the one-line SimKit SDK in your debug build, or the DMG build of SimKit." } },
             { "@type": "Question", "name": "Can the agent tap and type in my app?", "acceptedAnswer": { "@type": "Answer", "text": "No. SimKit observes and sets things up: requests, mocks, app data, simulator settings and screenshots. Use it next to the tool you already build and tap with." } }
@@ -65,6 +65,7 @@
         h1 .soft { color: var(--text-2); }
         .lead { margin-top: 18px; color: var(--text-2); font-size: clamp(17px, 2vw, 19px); max-width: 640px; }
         .fine { margin-top: 14px; font-size: 13.5px; color: var(--text-3); }
+        .beta { font-family: var(--mono); font-size: 11px; letter-spacing: .06em; text-transform: uppercase; color: var(--amber); background: rgba(255,180,84,.1); padding: 2px 7px; border-radius: 6px; margin-right: 6px; }
         .fine a, p a, li a { color: var(--text); border-bottom: 1px solid var(--divider); }
 
         section { padding: 72px 0 0; }
@@ -155,7 +156,7 @@
 <nav>
     <div class="nav-inner">
         <a href="./" class="brand"><img src="assets/icon-96.png" alt="" width="36" height="36">SimKit</a>
-        <a href="https://github.com/ealtaca/simkit-website/releases/latest/download/SimKit.dmg" class="btn">
+        <a href="./" class="btn">
             <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
             Download
         </a>
@@ -172,7 +173,7 @@
             <div class="code-bar"><span>Terminal</span><button type="button" class="copy" data-copy="npx -y simkit-mcp">Copy</button></div>
             <pre><code>npx -y simkit-mcp</code></pre>
         </div>
-        <p class="fine">Needs <a href="./">SimKit</a> 1.8 or later running on the same Mac. <a href="#setup">Setup takes three steps.</a></p>
+        <p class="fine"><span class="beta">Beta</span> Needs SimKit 1.8, which is in beta: choose Beta in the Download menu on the <a href="./">home page</a>. <a href="#setup">Setup takes three steps.</a></p>
 
         <div class="session" aria-label="An example session">
             <div class="turn">
@@ -227,7 +228,7 @@
         <ol class="steps">
             <li>
                 <h3>Get SimKit</h3>
-                <p>The MCP server is part of the Mac app, in version 1.8 or later. <a href="./">Download SimKit</a>, free, from the Mac App Store or as a DMG.</p>
+                <p>The MCP server is part of the Mac app, from version 1.8. That version is in beta: on the <a href="./">home page</a>, open the Download menu and choose Beta. SimKit 1.7 doesn't have it yet.</p>
             </li>
             <li>
                 <h3>Turn on Coding Agents</h3>
@@ -235,7 +236,7 @@
             </li>
             <li>
                 <h3>Connect your agent</h3>
-                <p>Press Install next to your agent in the Agents tab, or add SimKit yourself:</p>
+                <p>Add SimKit to your agent:</p>
 
                 <h4>Claude Code</h4>
                 <div class="code">
@@ -286,7 +287,7 @@ args = [<span class="c-s">"-y"</span>, <span class="c-s">"simkit-mcp"</span>]</c
         <h2>Questions, answered.</h2>
         <div class="faq">
             <details><summary>Is it free?</summary><p>Yes. SimKit and its MCP server are free, with no account.</p></details>
-            <details><summary>Which coding agents does it work with?</summary><p>Any MCP client. SimKit sets up Claude Code, Cursor, Codex and Kiro for you from the Agents tab, and <code>simkit-mcp</code> works with any client that runs a command.</p></details>
+            <details><summary>Which coding agents does it work with?</summary><p>Any MCP client. <code>simkit-mcp</code> works with any client that runs a command, including Claude Code, Cursor, Codex and Kiro.</p></details>
             <details><summary>Do I need the SimKit SDK?</summary><p>For the simulator tools, no. Network capture, mocks and throttling need the one-line <a href="./#sdk">SimKit SDK</a> in your debug build, or the DMG build of SimKit.</p></details>
             <details><summary>Can the agent tap and type in my app?</summary><p>No. SimKit observes and sets things up: requests, mocks, app data, simulator settings and screenshots. Use it next to the tool you already build and tap with.</p></details>
             <details><summary>Does my app's data leave my Mac?</summary><p>Not through SimKit. Headers and bodies reach your agent as the app sent them, tokens included, so treat them as you would any secret your agent can read. Tools that return them take a <code>redact</code> option.</p></details>
@@ -296,13 +297,10 @@ args = [<span class="c-s">"-y"</span>, <span class="c-s">"simkit-mcp"</span>]</c
 
     <section class="final">
         <h2>Give your agent eyes.</h2>
-        <p>Free on the Mac App Store, or as a DMG straight from here.</p>
+        <p>Free. MCP is in the 1.8 beta: choose Beta in the Download menu.</p>
         <div class="cta-row">
-            <a href="https://github.com/ealtaca/simkit-website/releases/latest/download/SimKit.dmg" class="btn btn-lg">
-                <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-                Download SimKit
-            </a>
-            <a href="https://apps.apple.com/en/app/simkit-simulator-toolkit/id6756196371?mt=12" class="btn btn-lg btn-ghost" target="_blank" rel="noopener">Mac App Store</a>
+            <a href="./" class="btn btn-lg">Get the SimKit beta</a>
+            <a href="https://github.com/ealtaca/simkit-mcp" class="btn btn-lg btn-ghost" target="_blank" rel="noopener">simkit-mcp on GitHub</a>
         </div>
     </section>
 </main>
