@@ -820,7 +820,9 @@
         .then(r => r.json())
         .then(list => {
             if (!Array.isArray(list)) return;
-            const live = list.filter(r => !r.draft);
+            // GitHub orders releases by the tagged commit's date, which betas tagged on the same
+            // commit share; the newest is the one published last.
+            const live = list.filter(r => !r.draft).sort((a, b) => (a.published_at < b.published_at ? 1 : -1));
             const stable = live.find(r => !r.prerelease);
             const beta = live.find(r => r.prerelease);
             if (stable) fill('dmg', tag(stable));
