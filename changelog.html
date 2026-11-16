@@ -98,6 +98,35 @@
         <p>What changed in each release. The DMG version updates itself; the <a href="https://apps.apple.com/en/app/simkit-simulator-toolkit/id6756196371?mt=12" target="_blank" rel="noopener">Mac App Store</a> version updates through the store.</p>
     </header>
 
+    <article class="release" id="1.8">
+        <div class="meta">
+            <span class="ver">1.8</span>
+            <time datetime="2026-11-16">November 16, 2026</time>
+            <div class="where"><span>DMG</span></div>
+        </div>
+        <div>
+            <h2>Coding agents, real devices and a Performance tab.</h2>
+            <h3 class="new">New</h3>
+            <ul>
+                <li><strong>Coding agents (MCP):</strong> Claude Code, Cursor, Codex and other MCP clients can read captured requests, set mocks, change app data and drive the simulator through 91 tools. Off until you turn it on in the Agents tab. <a href="mcp.html">Setup</a>.</li>
+                <li><strong>Real devices:</strong> pair an iPhone or iPad by a 6-digit code and see its traffic over Wi-Fi, encrypted. Mocks, files, keychain, cookies and databases work there too.</li>
+                <li><strong>Performance tab:</strong> frame rate, memory, CPU and main-thread hangs, with the code each hang was in.</li>
+                <li><strong>Network:</strong> pause capture, Edit &amp; Resend (⌘E), request origin, Hosts and Flags sidebar, token history and Expire Token, and a bug report file with the screenshot, console and requests.</li>
+                <li><strong>Analytics:</strong> latency histogram, p50/p95 over time, and insights for refresh storms, retried POSTs, duplicate GETs and unchanged re-downloads.</li>
+                <li><strong>Mocks:</strong> fill a mock from a captured response, Would Match preview, shadowing warnings, Network Weather (Outage, High Latency, Lossy, Flapping, Slow DNS) and <code>.simkitscenario</code> files.</li>
+                <li><strong>Monitor without the SDK</strong> (DMG): SimKit starts a simulator app with the SDK loaded into it.</li>
+                <li><strong>JSON tree:</strong> filter by path (<code>$.users[*].email</code>), Copy Path, Value or Key.</li>
+                <li><strong>Debug:</strong> Snapshots that save and restore an app's data, Steps, the app's console, Add Media, Trust Root Certificate, Clipboard, Reset Keychain and Erase Simulator.</li>
+                <li><strong>Also:</strong> an accessibility audit, design diff, received deep links and pushes, a map in Location, ⌘K, and a switch for anonymous usage data.</li>
+            </ul>
+            <h3 class="fixed">Fixed</h3>
+            <ul>
+                <li>The panel can no longer be resized below what its content needs.</li>
+                <li>UserDefaults edits made while the app is running now stay.</li>
+            </ul>
+        </div>
+    </article>
+
     <article class="release" id="1.7">
         <div class="meta">
             <span class="ver">1.7</span>

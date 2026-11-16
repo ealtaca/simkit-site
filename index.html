@@ -3,46 +3,52 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SimKit — The missing toolkit for iOS Simulator</title>
-    <meta name="description" content="Free macOS companion for the iOS Simulator. Network monitor, decoded JWTs, mock endpoints, throttling, push, GPX routes, accessibility and debug tools in one panel.">
+    <title>SimKit — See what your iOS app sends. So can your coding agent.</title>
+    <meta name="description" content="Free Mac app for the iOS Simulator. See every request your app makes, mock responses, throttle the network, and give Claude Code, Cursor or Codex the same view over MCP.">
     <meta name="theme-color" content="#0E0F12">
     <meta name="color-scheme" content="dark">
     <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png">
     <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
     <link rel="canonical" href="https://simkit.dev/">
-    <meta property="og:title" content="SimKit — The missing toolkit for iOS Simulator">
-    <meta property="og:description" content="Network, mocks, push, location and more in one panel beside your simulator. Free for macOS.">
+    <meta property="og:title" content="SimKit — See what your iOS app sends. So can your coding agent.">
+    <meta property="og:description" content="A network monitor, mocks and an MCP server for coding agents, beside your iOS Simulator. Free for macOS.">
     <meta property="og:url" content="https://simkit.dev/">
     <meta property="og:type" content="website">
     <meta property="og:image" content="https://simkit.dev/assets/og.jpg">
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="SimKit — The missing toolkit for iOS Simulator">
-    <meta name="twitter:description" content="Network, mocks, push, location and more in one panel beside your simulator. Free for macOS.">
+    <meta name="twitter:title" content="SimKit — See what your iOS app sends. So can your coding agent.">
+    <meta name="twitter:description" content="A network monitor, mocks and an MCP server for coding agents, beside your iOS Simulator. Free for macOS.">
     <meta name="twitter:image" content="https://simkit.dev/assets/og.jpg">
-    <meta name="keywords" content="iOS simulator, macOS developer tool, network monitoring, JWT decoder, mock API, network throttling, push notification testing, GPX route, accessibility testing, RocketSim alternative, Xcode, SimKit">
+    <meta name="keywords" content="iOS simulator, macOS developer tool, network monitoring, MCP server, Claude Code, Cursor, Codex, coding agent, JWT decoder, mock API, network throttling, push notification testing, GPX route, accessibility testing, RocketSim alternative, Xcode, SimKit">
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
       "@type": "SoftwareApplication",
       "name": "SimKit",
-      "description": "Free macOS companion for the iOS Simulator: network monitoring, mock endpoints, throttling, push notifications, location and GPX routes, accessibility and debug tools in one panel.",
+      "description": "Free macOS companion for the iOS Simulator: network monitoring without a proxy, mock endpoints, throttling, an MCP server for coding agents, push notifications, location, accessibility and debug tools in one panel.",
       "applicationCategory": "DeveloperApplication",
       "operatingSystem": "macOS 14.0+",
       "url": "https://simkit.dev",
       "downloadUrl": "https://apps.apple.com/en/app/simkit-simulator-toolkit/id6756196371?mt=12",
-      "softwareVersion": "1.7",
+      "softwareVersion": "1.8",
       "screenshot": "https://simkit.dev/assets/og.jpg",
       "author": { "@type": "Person", "name": "Emre Can Altaca" },
       "offers": [{ "@type": "Offer", "price": "0", "priceCurrency": "USD", "description": "Free" }],
       "featureList": [
-        "Network monitoring with query filter and timing",
+        "Network monitoring with query filter and timing, no proxy or certificates",
+        "MCP server with 91 tools for Claude Code, Cursor, Codex and other coding agents",
+        "Edit and resend requests, request origin, insights and analytics",
+        "API contracts, load tests, HAR export",
+        "Network traffic and mocks on real iPhones and iPads",
+        "Performance: frame rate, memory, CPU and main-thread hangs",
+        "App state snapshots and bug reports",
         "JWT decoding with expiry and redacted secrets",
         "Copy as cURL, fetch, HTTPie or Swift",
         "Generate Codable models from responses",
-        "Mock API endpoints",
-        "Network throttling (WiFi, LTE, 4G, 3G, Edge, Offline)",
+        "Mock API endpoints, shareable scenario files",
+        "Network throttling (WiFi, LTE, 4G, 3G, Edge, Offline) and Network Weather",
         "Push notification testing with saved templates",
         "Deep link testing",
         "Location simulation with GPX routes",
@@ -66,7 +72,15 @@
       "name": "Is SimKit really free?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Yes. SimKit is free with no account. Get it from the Mac App Store, or download the signed and notarized DMG from this site."
+        "text": "Yes. SimKit is free with no account, and that includes the MCP server. Get it from the Mac App Store, or download the signed and notarized DMG from this site."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Do I need a proxy or a certificate to see HTTPS traffic?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "No. The SimKit SDK reports requests from inside your app, after the system has decrypted them, so there is nothing to install on the simulator and nothing to trust."
       }
     },
     {
@@ -74,7 +88,23 @@
       "name": "Do I need the SDK?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "No. Capture, push, deep links, location, accessibility, biometrics and debug tools work with any app. The SimKit SDK adds network monitoring, mocks and throttling. It is one line of Swift, and you enable it inside #if DEBUG."
+        "text": "For network monitoring, mocks and throttling, yes: it is one line of Swift, and you enable it inside #if DEBUG. On a simulator, the DMG build can also load it into your app for you. Capture, push, deep links, location, accessibility, biometrics and debug tools work with any app."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Which coding agents work with SimKit?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Any MCP client that can run a command, including Claude Code, Cursor, Codex and Kiro. Turn on Coding Agents in SimKit's Agents tab, then add npx -y simkit-mcp to your agent. The MCP guide has the steps."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Can the agent tap and type in my app?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "No. SimKit observes and sets things up: requests, mocks, app data, simulator settings and screenshots. Use it next to the tool you already build and tap with."
       }
     },
     {
@@ -82,15 +112,15 @@
       "name": "Does my data leave my Mac?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Captured requests, headers, bodies and tokens stay on your Mac. SimKit sends anonymous usage data, including the bundle IDs of apps you debug, to Firebase, and you can turn it off in Settings. See the Privacy Policy for details."
+        "text": "Captured requests, headers, bodies and tokens stay on your Mac. If you connect a coding agent, what it reads goes to its own model provider, as with any file it reads. SimKit sends anonymous usage data, including the bundle IDs of apps you debug, to Firebase, and you can turn it off in Settings. See the Privacy Policy for details."
       }
     },
     {
       "@type": "Question",
-      "name": "Is SimKit open source?",
+      "name": "Does it work with real devices?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Not yet, but it will be soon. The app's source code will be published on GitHub."
+        "text": "Yes. An iPhone or iPad running your app with the SDK pairs with your Mac by a 6-digit code and sends its traffic over Wi-Fi, encrypted. The tools that drive the simulator itself stay on the simulator."
       }
     },
     {
@@ -98,7 +128,7 @@
       "name": "Does SimKit work with Xcode 27?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Yes. SimKit 1.7 supports the new Device Hub in Xcode 27 as well as Simulator.app in earlier versions."
+        "text": "Yes. SimKit supports the Device Hub in Xcode 27 as well as Simulator.app in earlier versions."
       }
     },
     {
@@ -114,7 +144,15 @@
       "name": "App Store or DMG?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "They are the same app. The App Store version updates through the App Store, the DMG version updates itself."
+        "text": "The App Store version updates through the App Store, the DMG version updates itself. Loading the SDK into an app for you is in the DMG version only."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Is SimKit open source?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Not yet, but it will be soon. The app's source code will be published on GitHub. The MCP bridge, simkit-mcp, already is."
       }
     }
   ]
@@ -308,8 +346,8 @@
         @keyframes beat { 0%, 60%, 100% { transform: scale(1); } 15% { transform: scale(1.22); } 30% { transform: scale(.95); } 45% { transform: scale(1.12); } }
         .pill b { font-weight: 500; color: var(--green); background: rgba(61,220,151,.12); padding: 2px 8px; border-radius: 999px; }
         h1 {
-            font-size: clamp(40px, 7.2vw, 84px); font-weight: 800; line-height: 1.02; letter-spacing: -.045em;
-            margin: 26px auto 22px; max-width: 900px;
+            font-size: clamp(38px, 6vw, 74px); font-weight: 800; line-height: 1.04; letter-spacing: -.045em;
+            margin: 26px auto 22px; max-width: 1040px; text-wrap: balance;
         }
         h1 .soft { background: linear-gradient(180deg, #E6E8EE 20%, #8F9AB8); -webkit-background-clip: text; background-clip: text; color: transparent; }
         .lead { font-size: clamp(17px, 2vw, 20px); color: var(--text-2); max-width: 620px; margin: 0 auto 36px; }
@@ -336,9 +374,9 @@
         section { position: relative; }
         .section { padding: 120px 0 0; }
         .eyebrow { font-family: var(--mono); font-size: 12.5px; letter-spacing: .14em; text-transform: uppercase; color: var(--k, var(--accent)); }
-        h2 { font-size: clamp(32px, 4.6vw, 54px); font-weight: 750; letter-spacing: -.035em; line-height: 1.05; margin: 14px 0 18px; }
-        .section-head { text-align: center; max-width: 720px; margin: 0 auto 72px; }
-        .section-head p { color: var(--text-2); font-size: 18px; }
+        h2 { font-size: clamp(32px, 4.6vw, 54px); font-weight: 750; letter-spacing: -.035em; line-height: 1.05; margin: 14px 0 18px; text-wrap: balance; }
+        .section-head { text-align: center; max-width: 900px; margin: 0 auto 72px; }
+        .section-head p { color: var(--text-2); font-size: 18px; max-width: 660px; margin: 0 auto; }
 
         /* Feature rows */
         .feature { display: grid; grid-template-columns: 5fr 7fr; gap: 64px; align-items: center; padding: 56px 0; }
@@ -373,6 +411,53 @@
             background: radial-gradient(closest-side, color-mix(in srgb, var(--k) 40%, transparent), transparent); filter: blur(50px);
         }
         .shot .frame { border-color: color-mix(in srgb, var(--k) 22%, var(--divider)); }
+        .shot.tall .frame { max-width: 400px; margin: 0 auto; }
+        .shot.tall img { width: 100%; }
+
+        /* Inline code in cards and strips */
+        .strip code, .tiles code, .pbody code { font-family: var(--mono); font-size: .9em; color: var(--text); background: var(--bg-3); padding: 1px 5px; border-radius: 5px; }
+
+        /* Small feature tiles */
+        .tiles { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; background: var(--divider); border: 1px solid var(--divider); border-radius: var(--radius); overflow: hidden; margin: 8px 0 40px; }
+        .tiles div { background: var(--bg); padding: 22px; }
+        .tiles h3 { display: flex; align-items: center; gap: 10px; font-size: 15.5px; font-weight: 650; }
+        .tiles h3::before { content: ""; flex-shrink: 0; width: 6px; height: 6px; border-radius: 2px; background: var(--k); }
+        .tiles p { margin-top: 6px; font-size: 14px; color: var(--text-2); line-height: 1.55; }
+
+        /* Two plain cards side by side */
+        .duo { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 20px; }
+        .duo > div { background: linear-gradient(180deg, var(--bg-2), var(--bg)); border: 1px solid var(--divider); border-radius: 20px; padding: 26px 28px 30px; }
+        .duo h3 { font-size: 22px; font-weight: 700; letter-spacing: -.02em; line-height: 1.2; margin: 10px 0 8px; }
+        .duo p { color: var(--text-2); font-size: 15.5px; }
+
+        /* Coding agents */
+        .agent { display: grid; grid-template-columns: 5fr 6fr; gap: 48px; align-items: start; }
+        .agent > div { min-width: 0; }
+        .agent h3 { font-size: 22px; font-weight: 700; letter-spacing: -.02em; margin-top: 36px; }
+        .cmd .code-bar { align-items: center; justify-content: space-between; padding: 9px 12px 9px 16px; font-size: 12px; color: var(--text-3); letter-spacing: .02em; }
+        .cmd pre { padding: 16px 18px; font-size: 13.5px; }
+        .copy-btn { font: inherit; font-size: 12px; color: var(--text-2); background: rgba(255,255,255,.04); border: 1px solid var(--divider); border-radius: 7px; padding: 4px 9px; cursor: pointer; }
+        .copy-btn:hover { color: var(--text); border-color: #3A4050; }
+        .copy-btn:focus-visible, .btn:focus-visible, summary:focus-visible, a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+        .cmd-note { margin-top: 12px; font-size: 14px; color: var(--text-3); }
+        .cmd-note a { color: var(--text); text-decoration: underline; text-underline-offset: 3px; }
+        .prompts { list-style: none; display: grid; gap: 10px; margin-top: 16px; }
+        .prompts li { border: 1px solid var(--divider); border-radius: 12px; padding: 13px 16px; background: var(--bg-2); font-size: 15px; }
+        .prompts li::before { content: "“"; color: var(--text-3); margin-right: 2px; }
+        .prompts li::after { content: "”"; color: var(--text-3); margin-left: 2px; }
+        .session { border: 1px solid color-mix(in srgb, var(--accent) 22%, var(--divider)); border-radius: 16px; background: var(--bg-deep); overflow: hidden; }
+        .session .who { font-family: var(--mono); font-size: 11.5px; letter-spacing: .08em; text-transform: uppercase; color: var(--text-3); }
+        .turn { padding: 18px 20px; border-top: 1px solid var(--divider); }
+        .turn:first-child { border-top: 0; }
+        .turn p { margin-top: 6px; font-size: 15.5px; }
+        .turn code { font-family: var(--mono); font-size: .9em; background: var(--bg-3); padding: 1px 5px; border-radius: 5px; }
+        .calls { list-style: none; display: grid; gap: 7px; margin: 12px 0; font-family: var(--mono); font-size: 13px; }
+        .calls li { display: grid; grid-template-columns: minmax(0, 150px) 1fr; gap: 14px; color: var(--text-2); }
+        .calls b { font-weight: 500; color: var(--blue); overflow-wrap: anywhere; }
+        .calls .bad { color: var(--amber); }
+        .note { margin-top: 10px; font-size: 13px; color: var(--text-3); }
+        #agents .strip { margin-top: 48px; }
+        #agents .mid-cta { margin-top: 20px; }
 
         /* More grid */
         .more { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
@@ -435,10 +520,14 @@
         }
 
         @media (max-width: 960px) {
+            .nav-links .hide-sm { display: none; }
+            .nav-links { gap: 10px; }
+            .nav-links .show-sm { display: inline-grid; }
             .feature { grid-template-columns: 1fr; gap: 32px; padding: 40px 0; }
             .feature.wide .copy { grid-template-columns: 1fr; }
             .feature.wide .copy ul { margin-top: 22px; }
-            .pairs { grid-template-columns: 1fr; }
+            .pairs, .duo, .agent { grid-template-columns: 1fr; }
+            .tiles { grid-template-columns: repeat(2, 1fr); }
             .more { grid-template-columns: repeat(2, 1fr); }
             .sdk { grid-template-columns: 1fr; padding: 32px; gap: 32px; }
             .strip { grid-template-columns: repeat(2, 1fr); }
@@ -453,7 +542,9 @@
             .hero-shot { margin-top: 44px; }
             .frame { border-radius: 12px; }
             .cta-row .btn { width: 100%; }
-            .more { grid-template-columns: 1fr; }
+            .more, .tiles { grid-template-columns: 1fr; }
+            .calls li { grid-template-columns: 1fr; gap: 0; }
+            .duo > div { padding: 22px; }
             .strip { grid-template-columns: 1fr; margin-top: 48px; }
             .section { padding-top: 88px; }
             .section-head { margin-bottom: 40px; }
@@ -471,7 +562,9 @@
     <div class="wrap nav-inner">
         <a href="#" class="brand"><img src="assets/icon-96.png" alt="" width="36" height="36">SimKit</a>
         <div class="nav-links">
-            <a href="#features" class="hide-sm">Features</a>
+            <a href="#network" class="hide-sm">Network</a>
+            <a href="#agents" class="hide-sm">Agents</a>
+            <a href="#tools" class="hide-sm">Tools</a>
             <a href="#sdk" class="hide-sm">SDK</a>
             <a href="#faq" class="hide-sm">FAQ</a>
             <a href="changelog.html" class="hide-sm">Changelog</a>
@@ -479,7 +572,9 @@
                 <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="20" y2="17"/></svg>
             </button>
             <div class="menu" id="more-menu" hidden>
-                <a href="#features" class="menu-item"><strong>Features</strong></a>
+                <a href="#network" class="menu-item"><strong>Network</strong></a>
+                <a href="#agents" class="menu-item"><strong>Agents</strong></a>
+                <a href="#tools" class="menu-item"><strong>Tools</strong></a>
                 <a href="#sdk" class="menu-item"><strong>SDK</strong></a>
                 <a href="#faq" class="menu-item"><strong>FAQ</strong></a>
                 <a href="changelog.html" class="menu-item"><strong>Changelog</strong></a>
@@ -514,11 +609,11 @@
             <div class="puffs"><i></i><i></i><i></i><i></i></div>
         </div>
         <div class="pills">
-            <a class="pill" href="changelog.html#1.7"><b>1.7</b> Ready for Xcode 27 and Device Hub</a>
+            <a class="pill" href="changelog.html#1.8"><b>1.8</b> MCP for coding agents, real devices, Performance</a>
             <span class="pill pill-free"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>Free. Save your rocket fuel.</span>
         </div>
-        <h1 >The missing toolkit<br><span class="soft">for iOS Simulator.</span></h1>
-        <p class="lead">Push, location, capture and accessibility tools for any app, in one panel beside your simulator. Add a one-line SDK for network, mocks and throttling.</p>
+        <h1>See what your app sends.<br><span class="soft">So can your coding agent.</span></h1>
+        <p class="lead">SimKit sits beside the iOS Simulator and shows every request your app makes. Mock a response, slow the network, expire a token. Then let Claude Code, Cursor or Codex do the same over MCP.</p>
         <div class="cta-row">
             <a href="https://apps.apple.com/en/app/simkit-simulator-toolkit/id6756196371?mt=12" class="btn btn-primary" target="_blank" rel="noopener">
                 <svg aria-hidden="true" viewBox="0 0 24 24" fill="currentColor"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
@@ -538,51 +633,63 @@
         </div>
 
         <div class="strip">
+            <div><strong>No proxy, no certificates</strong><span>Traffic is read from inside your app.</span></div>
+            <div><strong>91 tools for your agent</strong><span>One command: <code>npx -y simkit-mcp</code></span></div>
             <div><strong>Free, no account</strong><span>Every tool, no sign-up, no trial.</span></div>
-            <div><strong>No proxy, no certificates</strong><span>The SDK sees traffic from inside your app.</span></div>
-            <div><strong>Xcode 27 ready</strong><span>Device Hub and Simulator.app.</span></div>
             <div><strong>Stays on your Mac</strong><span>Requests and tokens are never uploaded.</span></div>
         </div>
     </div>
 </header>
 
 <main>
-<section class="section" id="features">
+<section class="section" id="network">
     <div class="wrap">
         <div class="section-head rv">
-            <span class="eyebrow">Features</span>
-            <h2>Everything you reach for,<br>right beside the simulator.</h2>
-            <p>No proxy setup, no simctl one-liners, no trip to the Settings app.</p>
+            <span class="eyebrow" style="--k: var(--blue)">Network</span>
+            <h2>Every request your app makes,<br>the moment it makes it.</h2>
+            <p>No proxy to configure and no certificate to trust. SimKit reads the traffic from inside your app, so HTTPS just works.</p>
         </div>
 
         <div class="feature wide" style="--k: var(--blue)">
             <div class="copy rv">
                 <div>
-                <span class="eyebrow">Network Monitor</span><span class="sdk-tag" title="Needs the one-line SimKit SDK">needs SDK</span>
-                <h3>See every request.</h3>
-                <p>Live timing, status and size for each call. Errors stand out, slow ones too.</p>
+                <span class="eyebrow">Request Monitor</span>
+                <h3>Find the one request that matters.</h3>
+                <p>Status, timing and size for every call, live. Type a query and the list narrows to the failures, the slow ones or a single host.</p>
                 </div>
                 <ul>
                     <li><span>Query filter like <code>status:&gt;=400 host:api slow:&gt;300ms</code></span></li>
-                    <li>Copy as cURL, fetch, HTTPie or Swift</li>
-                    <li>Generate a Codable model from any response</li>
-                    <li>HAR export and pretty-printed JSON</li>
+                    <li>Edit &amp; Resend: change a request, send it again, compare the two responses</li>
+                    <li>Request origin: the code a request came from</li>
+                    <li>Copy as cURL, fetch, HTTPie or Swift, and export HAR</li>
                 </ul>
             </div>
             <div class="shot rv"><div class="frame"><img src="assets/shots/network.webp" width="2400" height="1500" loading="lazy" alt="Network monitor with a request list, timing bars and request headers"></div></div>
         </div>
 
+        <div class="tiles rv" style="--k: var(--blue)">
+            <div><h3>Insights</h3><p>Refresh storms, retried POSTs, duplicate GETs and re-downloads of unchanged data, pointed out for you.</p></div>
+            <div><h3>Analytics</h3><p>A latency histogram and p50/p95 over time, with the change since the previous window.</p></div>
+            <div><h3>Contracts</h3><p>Save the shape of a response and get warned the moment the endpoint returns something else.</p></div>
+            <div><h3>Generate Model</h3><p>Swift Codable types from any JSON response.</p></div>
+            <div><h3>JSON tree</h3><p>Filter a body by path, like <code>$.users[*].email</code>, and copy the path, key or value.</p></div>
+            <div><h3>WebSockets and web views</h3><p>Socket frames and web view page loads, next to your HTTP calls.</p></div>
+            <div><h3>Load tests</h3><p>Fire a burst at an endpoint and watch success rate and latency percentiles build up.</p></div>
+            <div><h3>Bug report</h3><p>One file with the screenshot, the console and the requests, ready to attach.</p></div>
+        </div>
+
         <div class="feature wide" style="--k: var(--purple)">
             <div class="copy rv">
                 <div>
-                <span class="eyebrow">Mocks</span><span class="sdk-tag" title="Needs the one-line SimKit SDK">needs SDK</span>
+                <span class="eyebrow">Mocks</span>
                 <h3>Mock any endpoint.</h3>
-                <p>Swap a response without touching the backend. Group mocks into scenarios and flip them on together.</p>
+                <p>Swap a response without touching the backend. Start from one you just captured and change only what you need.</p>
                 </div>
                 <ul>
-                    <li>Status codes, bodies and delays</li>
-                    <li>Scenario folders like “Spring sale” or “Errors”</li>
-                    <li>Hit counts so you know a mock fired</li>
+                    <li>Status codes, headers, bodies and delays</li>
+                    <li>Would Match shows which requests a rule catches before you switch it on</li>
+                    <li><span>Scenarios you can save and share as <code>.simkitscenario</code> files</span></li>
+                    <li>Hit counts, so you know a mock fired</li>
                 </ul>
             </div>
             <div class="shot rv"><div class="frame"><img src="assets/shots/mocks.webp" width="2400" height="1500" loading="lazy" alt="Mock list with sale and error scenarios, and the app showing mocked sale prices"></div></div>
@@ -592,25 +699,143 @@
             <article class="pcard rv" style="--k: var(--green)">
                 <div class="pshot"><img src="assets/shots/auth.webp" width="1600" height="1000" loading="lazy" alt="Decoded JWT showing claims and a countdown to expiry"></div>
                 <div class="pbody">
-                    <span class="eyebrow">Auth</span><span class="sdk-tag" title="Needs the one-line SimKit SDK">needs SDK</span>
-                    <h3>Tokens, decoded.</h3>
-                    <p>Every JWT your app sends, with its claims and a live expiry countdown. Secrets stay redacted when you copy.</p>
+                    <span class="eyebrow">Auth</span>
+                    <h3>Tokens, decoded. Then expired.</h3>
+                    <p>Every JWT your app sends, with its claims, its history and a live countdown. Press Expire Token and watch whether your refresh logic holds.</p>
                 </div>
             </article>
             <article class="pcard rv" style="--k: var(--amber)">
                 <div class="pshot"><img src="assets/shots/throttling.webp" width="1600" height="1000" loading="lazy" alt="Throttling panel with 3G selected"></div>
                 <div class="pbody">
-                    <span class="eyebrow">Throttling</span><span class="sdk-tag" title="Needs the one-line SimKit SDK">needs SDK</span>
+                    <span class="eyebrow">Throttling</span>
                     <h3>Your app on bad Wi-Fi.</h3>
-                    <p>3G, high latency and packet loss for one app, not your whole Mac. Presets from WiFi down to Offline.</p>
+                    <p>3G, high latency and packet loss for one app, not your whole Mac. Network Weather adds outages, a flapping connection and slow DNS.</p>
                 </div>
             </article>
+        </div>
+
+        <div class="duo rv">
+            <div style="--k: var(--cyan)">
+                <span class="eyebrow">Simulator</span>
+                <h3>Haven't added the SDK yet?</h3>
+                <p>The DMG build can start a simulator app with the SDK loaded into it. Requests show up and mocks apply, and your code doesn't change.</p>
+            </div>
+            <div style="--k: var(--pink)">
+                <span class="eyebrow">Real devices</span>
+                <h3>The same traffic from an iPhone.</h3>
+                <p>Pair an iPhone or iPad with a 6-digit code and watch its requests over Wi-Fi, encrypted. Mocks reach the device too.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="section" id="agents">
+    <div class="wrap">
+        <div class="section-head rv">
+            <span class="eyebrow">Coding agents · MCP</span>
+            <h2>Your agent wrote the code.<br>Now let it see what the app did.</h2>
+            <p>An agent can read your source. It can't see which request went out, what came back, or what your app does on a 401. SimKit hands it all of that.</p>
+        </div>
+
+        <div class="agent rv">
+            <div class="agent-copy">
+                <div class="code cmd">
+                    <div class="code-bar"><span>Claude Code</span><button type="button" class="copy-btn" data-copy="claude mcp add simkit -- npx -y simkit-mcp">Copy</button></div>
+                    <pre>claude mcp add simkit -- npx -y simkit-mcp</pre>
+                </div>
+                <p class="cmd-note">Cursor, Codex, Kiro and any other MCP client work too. <a href="mcp.html#setup">See the setup for each.</a></p>
+
+                <h3>Then just ask.</h3>
+                <ul class="prompts">
+                    <li>List the requests my app made in the last minute and tell me which ones failed.</li>
+                    <li>Throttle the network to 3G and tell me which requests get slow.</li>
+                    <li>Expire my auth token and check that the app refreshes it once, not five times.</li>
+                    <li>Switch to dark mode with the largest text size and show me the screen.</li>
+                </ul>
+            </div>
+
+            <div>
+                <div class="session" aria-label="An example session">
+                    <div class="turn">
+                        <span class="who">You</span>
+                        <p>Mock /login to return a 500, relaunch the app and show me what the user sees.</p>
+                    </div>
+                    <div class="turn">
+                        <span class="who">Agent, through SimKit</span>
+                        <ul class="calls">
+                            <li><b>set_mock</b><span>POST /login answers <span class="bad">500</span></span></li>
+                            <li><b>relaunch_app</b><span>com.example.shop restarted</span></li>
+                            <li><b>wait_for_request</b><span>POST /login finished, <span class="bad">500</span> from the mock</span></li>
+                            <li><b>screenshot</b><span>the login screen, as the simulator shows it</span></li>
+                            <li><b>remove_mock</b><span>back to the real server</span></li>
+                        </ul>
+                        <p>The app shows a blank screen on a 500: <code>LoginViewModel</code> only handles 401. I've added an error state and checked it the same way.</p>
+                    </div>
+                </div>
+                <p class="note">An illustration of a session. The tool names are SimKit's own.</p>
+            </div>
+        </div>
+
+        <div class="feature" style="--k: var(--accent)">
+            <div class="copy rv">
+                <span class="eyebrow">Agents tab</span>
+                <h3>Connect in one click.</h3>
+                <p>Turn on the switch and press Install next to your agent. SimKit writes the config for Claude Code, Cursor, Kiro and Codex.</p>
+                <ul>
+                    <li>Off until you turn it on</li>
+                    <li>Shows what your agent is doing as it works</li>
+                    <li>Or copy the command and set it up yourself</li>
+                </ul>
+            </div>
+            <div class="shot tall rv"><div class="frame"><img src="assets/shots/agents.webp" width="754" height="866" loading="lazy" alt="SimKit's Agents tab with Coding Agents switched on and Install buttons for Claude Code, Cursor, Kiro and Codex"></div></div>
+        </div>
+
+        <div class="strip rv">
+            <div><strong>91 tools</strong><span>Requests, mocks, app data, simulator settings, screenshots and real devices.</span></div>
+            <div><strong>Light on context</strong><span>Your agent starts with the everyday tools and looks up the others when it needs them.</span></div>
+            <div><strong>Local, and off by default</strong><span>Listens on 127.0.0.1 only, behind a token, once you turn it on.</span></div>
+            <div><strong>Reads are marked as reads</strong><span>Your agent can ask before it resets an app, and not before it lists requests.</span></div>
+        </div>
+
+        <div class="mid-cta rv">
+            <p><strong>Free, like the rest of SimKit.</strong> The MCP server is part of the Mac app.</p>
+            <div class="cta-row">
+                <a href="mcp.html" class="btn btn-primary btn-sm">Read the MCP guide</a>
+                <a href="https://github.com/ealtaca/simkit-mcp" class="btn btn-ghost btn-sm" target="_blank" rel="noopener">simkit-mcp on GitHub</a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="section" id="tools">
+    <div class="wrap">
+        <div class="section-head rv">
+            <span class="eyebrow">Beside the simulator</span>
+            <h2>And everything else<br>you reach for.</h2>
+            <p>No simctl one-liners, no trip to the Settings app. Most of these work with any app, no SDK.</p>
+        </div>
+
+        <div class="feature" style="--k: var(--red); padding-top: 0">
+            <div class="copy rv">
+                <span class="eyebrow">Performance</span>
+                <h3>See the hang, and the code behind it.</h3>
+                <p>Frame rate, memory, CPU and main-thread hangs, sampled once a second while you use the app.</p>
+                <ul>
+                    <li>Each hang opens the code the main thread was in</li>
+                    <li>Look back over 1, 5 or 10 minutes</li>
+                    <li>Off until you switch it on. Needs the SDK.</li>
+                </ul>
+            </div>
+            <div class="shot tall rv"><div class="frame"><img src="assets/shots/performance.webp" width="760" height="900" loading="lazy" alt="Performance tab with FPS, memory, CPU and hangs over time, and a list of hangs with the function each was in"></div></div>
+        </div>
+
+        <div class="pairs" style="margin-top: 0">
             <article class="pcard rv" style="--k: var(--pink)">
                 <div class="pshot"><img src="assets/shots/push.webp" width="1600" height="1000" loading="lazy" alt="Push form next to a simulator showing the delivered notification banner"></div>
                 <div class="pbody">
                     <span class="eyebrow">Push Notifications</span>
                     <h3>Push in one click.</h3>
-                    <p>Real banners on the simulator from a quick form or custom JSON. Silent pushes and saved templates included.</p>
+                    <p>Real banners on the simulator from a quick form, custom JSON or a dropped <code>.apns</code> file, with a live preview and saved templates.</p>
                 </div>
             </article>
             <article class="pcard rv" style="--k: var(--green)">
@@ -618,7 +843,7 @@
                 <div class="pbody">
                     <span class="eyebrow">Location</span>
                     <h3>Go anywhere, ride a route.</h3>
-                    <p>Coordinates, Maps links and GPX routes at walking, biking or driving speed.</p>
+                    <p>Click a spot on the map, paste coordinates or a Maps link, or play a GPX route at walking, biking or driving speed.</p>
                 </div>
             </article>
             <article class="pcard rv" style="--k: var(--cyan)">
@@ -626,7 +851,7 @@
                 <div class="pbody">
                     <span class="eyebrow">Accessibility</span>
                     <h3>Accessibility settings, live.</h3>
-                    <p>Dynamic Type, dark mode, contrast, bold text and reduce motion without a trip to Settings.</p>
+                    <p>Dynamic Type, dark mode, contrast, bold text and reduce motion without a trip to Settings. An audit scores the screen and lists what to fix.</p>
                 </div>
             </article>
             <article class="pcard rv" style="--k: var(--amber)">
@@ -634,35 +859,31 @@
                 <div class="pbody">
                     <span class="eyebrow">Debug</span>
                     <h3>Debug without digging.</h3>
-                    <p>Relaunch with arguments, grant or revoke permissions, switch locale, send a shake or a memory warning.</p>
+                    <p>Launch arguments, permissions, locale, UserDefaults, the app's console, a shake or a memory warning. All one click away.</p>
                 </div>
             </article>
         </div>
 
-        <div class="mid-cta rv">
-            <p><strong>Free, no account.</strong> Get it in a minute.</p>
-            <div class="cta-row">
-                <a href="https://apps.apple.com/en/app/simkit-simulator-toolkit/id6756196371?mt=12" class="btn btn-primary btn-sm" target="_blank" rel="noopener">Mac App Store <span class="ver" data-ver="appstore">1.6</span></a>
-                <a href="https://github.com/ealtaca/simkit-website/releases/latest/download/SimKit.dmg" class="btn btn-ghost btn-sm">Download DMG <span class="ver" data-ver="dmg">1.7</span></a>
+        <div class="more" style="margin-top: 20px">
+            <div class="card rv" style="--k: var(--red)">
+                <div class="ic"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="7" y="2" width="10" height="20" rx="2.5"/><path d="M11 18h2"/></svg></div>
+                <h3>Devices on a cable</h3><p>Appearance, status bar, Face ID, rotation and screenshots on an iPhone connected to Xcode.</p>
             </div>
-        </div>
-    </div>
-</section>
-
-<section class="section">
-    <div class="wrap">
-        <div class="section-head rv">
-            <span class="eyebrow">And more</span>
-            <h2>The small things, handled.</h2>
-        </div>
-        <div class="more">
+            <div class="card rv" style="--k: var(--green)">
+                <div class="ic"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7"/><polyline points="3 4 3 9 8 9"/><polyline points="12 7 12 12 15 14"/></svg></div>
+                <h3>Snapshots</h3><p>Save an app's whole state and restore it later, to switch accounts or return to a screen.</p>
+            </div>
             <div class="card rv" style="--k: var(--accent)">
                 <div class="ic"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg></div>
                 <h3>Capture</h3><p>Screenshots, video and GIFs with device frames, ready for the App Store.</p>
             </div>
             <div class="card rv" style="--k: var(--purple)">
                 <div class="ic"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M3 15h18M9 3v18M15 3v18"/></svg></div>
-                <h3>Design overlays</h3><p>Grid, rulers, magnifier and a design comparison overlay with opacity.</p>
+                <h3>Design diff</h3><p>Compare the screen with a design image, plus grid, rulers and a magnifier.</p>
+            </div>
+            <div class="card rv" style="--k: var(--pink)">
+                <div class="ic"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg></div>
+                <h3>Deep links</h3><p>URL schemes and universal links, saved so you never retype them, and the links your app received.</p>
             </div>
             <div class="card rv" style="--k: var(--green)">
                 <div class="ic"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 11c0 3-1 6-3 8M8 9a4 4 0 0 1 8 0c0 2-.3 4-1 6M4 12a8 8 0 0 1 16 0c0 1.5-.2 3-.6 4.5M12 2a10 10 0 0 0-8 4"/></svg></div>
@@ -672,21 +893,9 @@
                 <div class="ic"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="3"/><path d="M9 6h6"/></svg></div>
                 <h3>Status bar &amp; bezels</h3><p>A clean 9:41 status bar and real device bezels for marketing shots.</p>
             </div>
-            <div class="card rv" style="--k: var(--pink)">
-                <div class="ic"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg></div>
-                <h3>Deep links</h3><p>URL schemes and universal links, saved so you never retype them.</p>
-            </div>
-            <div class="card rv" style="--k: var(--amber)">
-                <div class="ic"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h4l3-8 4 16 3-8h4"/></svg></div>
-                <h3>Shake &amp; memory</h3><p>Send a shake or a memory warning to the foreground app.</p>
-            </div>
             <div class="card rv" style="--k: var(--cyan)">
                 <div class="ic"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg></div>
-                <h3>WebSockets</h3><p>Inspect socket frames as they flow, next to your HTTP traffic.</p>
-            </div>
-            <div class="card rv" style="--k: var(--red)">
-                <div class="ic"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg></div>
-                <h3>Performance</h3><p>FPS, memory and CPU while you click around.</p>
+                <h3>⌘K</h3><p>A command bar and global shortcuts for everything in the panel.</p>
             </div>
         </div>
     </div>
@@ -698,11 +907,11 @@
             <div>
                 <span class="eyebrow">SimKit SDK</span>
                 <h2>One line for the deep stuff.</h2>
-                <p>Add the SDK to unlock network monitoring, mocks, throttling, WebSocket and performance insights. Enable it inside <code>#if DEBUG</code> and nothing runs in your release builds.</p>
+                <p>The SDK is what lets SimKit see inside your app: requests, mocks, throttling, WebSockets and performance. Enable it inside <code>#if DEBUG</code> and nothing runs in your release builds.</p>
                 <ul class="facts">
-                    <li>Talks only to SimKit on your Mac, over 127.0.0.1. No analytics inside.</li>
-                    <li>About 0.9 MB in a device build. iOS 13 or later.</li>
-                    <li>Swift Package Manager, plus one Info.plist key: <code>NSAllowsLocalNetworking</code>.</li>
+                    <li>Talks only to SimKit on your Mac. No analytics inside.</li>
+                    <li>Swift Package Manager, iOS 13 or later.</li>
+                    <li>One Info.plist key: <code>NSAllowsLocalNetworking</code>.</li>
                 </ul>
                 <a href="https://github.com/ealtaca/SimKitSDK-Binary" class="btn btn-ghost" target="_blank" rel="noopener">
                     <svg aria-hidden="true" viewBox="0 0 24 24" fill="currentColor"><path d="M12 .3a12 12 0 0 0-3.8 23.4c.6.1.8-.3.8-.6v-2c-3.3.7-4-1.6-4-1.6-.6-1.4-1.4-1.8-1.4-1.8-1-.7.1-.7.1-.7 1.2.1 1.8 1.2 1.8 1.2 1 1.8 2.8 1.3 3.5 1 0-.8.4-1.3.7-1.6-2.7-.3-5.5-1.3-5.5-6 0-1.2.5-2.3 1.3-3.1-.2-.4-.6-1.6 0-3.2 0 0 1-.3 3.4 1.2a11.5 11.5 0 0 1 6 0c2.3-1.5 3.3-1.2 3.3-1.2.6 1.6.2 2.8 0 3.2.9.8 1.3 1.9 1.3 3.2 0 4.6-2.8 5.6-5.5 5.9.5.4.9 1 .9 2.2v3.3c0 .3.1.7.8.6A12 12 0 0 0 12 .3"/></svg>
@@ -734,13 +943,17 @@
             <h2>Questions, answered.</h2>
         </div>
         <div class="faq rv">
-            <details><summary>Is SimKit really free?</summary><p>Yes. SimKit is free with no account. Get it from the Mac App Store, or download the signed and notarized DMG from this site.</p></details>
-            <details><summary>Do I need the SDK?</summary><p>No. Capture, push, deep links, location, accessibility, biometrics and debug tools work with any app. The SimKit SDK adds network monitoring, mocks and throttling. It is one line of Swift, and you enable it inside <code>#if DEBUG</code>.</p></details>
-            <details><summary>Does my data leave my Mac?</summary><p>Captured requests, headers, bodies and tokens stay on your Mac. SimKit sends anonymous usage data, including the bundle IDs of apps you debug, to Firebase, and you can turn it off in Settings. See the <a href="privacy-policy.html">Privacy Policy</a> for details.</p></details>
-            <details><summary>Is SimKit open source?</summary><p>Not yet, but it will be soon. The app&#x27;s source code will be published on GitHub.</p></details>
-            <details><summary>Does SimKit work with Xcode 27?</summary><p>Yes. SimKit 1.7 supports the new Device Hub in Xcode 27 as well as Simulator.app in earlier versions.</p></details>
+            <details><summary>Is SimKit really free?</summary><p>Yes. SimKit is free with no account, and that includes the MCP server. Get it from the Mac App Store, or download the signed and notarized DMG from this site.</p></details>
+            <details><summary>Do I need a proxy or a certificate to see HTTPS traffic?</summary><p>No. The SimKit SDK reports requests from inside your app, after the system has decrypted them, so there is nothing to install on the simulator and nothing to trust.</p></details>
+            <details><summary>Do I need the SDK?</summary><p>For network monitoring, mocks and throttling, yes: it is one line of Swift, and you enable it inside <code>#if DEBUG</code>. On a simulator, the DMG build can also load it into your app for you. Capture, push, deep links, location, accessibility, biometrics and debug tools work with any app.</p></details>
+            <details><summary>Which coding agents work with SimKit?</summary><p>Any MCP client that can run a command, including Claude Code, Cursor, Codex and Kiro. Turn on Coding Agents in SimKit's Agents tab, then add <code>npx -y simkit-mcp</code> to your agent. The <a href="mcp.html">MCP guide</a> has the steps.</p></details>
+            <details><summary>Can the agent tap and type in my app?</summary><p>No. SimKit observes and sets things up: requests, mocks, app data, simulator settings and screenshots. Use it next to the tool you already build and tap with.</p></details>
+            <details><summary>Does my data leave my Mac?</summary><p>Captured requests, headers, bodies and tokens stay on your Mac. If you connect a coding agent, what it reads goes to its own model provider, as with any file it reads. SimKit sends anonymous usage data, including the bundle IDs of apps you debug, to Firebase, and you can turn it off in Settings. See the <a href="privacy-policy.html">Privacy Policy</a> for details.</p></details>
+            <details><summary>Does it work with real devices?</summary><p>Yes. An iPhone or iPad running your app with the SDK pairs with your Mac by a 6-digit code and sends its traffic over Wi-Fi, encrypted. The tools that drive the simulator itself stay on the simulator.</p></details>
+            <details><summary>Does SimKit work with Xcode 27?</summary><p>Yes. SimKit supports the Device Hub in Xcode 27 as well as Simulator.app in earlier versions.</p></details>
             <details><summary>What macOS version does SimKit require?</summary><p>macOS 14 (Sonoma) or later.</p></details>
-            <details><summary>App Store or DMG?</summary><p>They are the same app. The App Store version updates through the App Store, the DMG version updates itself.</p></details>
+            <details><summary>App Store or DMG?</summary><p>The App Store version updates through the App Store, the DMG version updates itself. Loading the SDK into an app for you is in the DMG version only.</p></details>
+            <details><summary>Is SimKit open source?</summary><p>Not yet, but it will be soon. The app&#x27;s source code will be published on GitHub. The MCP bridge, <a href="https://github.com/ealtaca/simkit-mcp" target="_blank" rel="noopener">simkit-mcp</a>, already is.</p></details>
         </div>
     </div>
 </section>
@@ -807,6 +1020,16 @@
         menu.addEventListener('click', e => { if (e.target.closest('a')) setOpen(false); });
         document.addEventListener('click', e => { if (!button.contains(e.target) && !menu.contains(e.target)) setOpen(false); });
         document.addEventListener('keydown', e => { if (e.key === 'Escape') setOpen(false); });
+    });
+
+    document.querySelectorAll('.copy-btn').forEach(button => {
+        button.addEventListener('click', () => {
+            if (!navigator.clipboard) return;
+            navigator.clipboard.writeText(button.dataset.copy).then(() => {
+                button.textContent = 'Copied';
+                setTimeout(() => { button.textContent = 'Copy'; }, 1600);
+            }, () => {});
+        });
     });
 
     // Versions on the download buttons. The HTML carries the last known ones,
