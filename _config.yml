@@ -4,3 +4,5 @@ description: Supercharge Your Simulator Workflow
 show_downloads: false
 exclude:
   - README.md
+include:
+  - .well-known
