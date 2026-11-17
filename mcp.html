@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SimKit MCP — let your coding agent see what your iOS app did</title>
-    <meta name="description" content="A free MCP server for iOS development. Claude Code, Cursor and Codex can read your app's network requests, mock responses and drive the iOS Simulator through SimKit.">
+    <title>iOS Simulator MCP Server for Claude Code and Cursor | SimKit</title>
+    <meta name="description" content="A free MCP server for the iOS Simulator. Claude Code, Cursor and Codex can read your app's network requests, mock responses and change simulator settings.">
     <meta name="theme-color" content="#0E0F12">
     <meta name="color-scheme" content="dark">
     <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png">
@@ -15,21 +15,88 @@
     <meta property="og:url" content="https://simkit.dev/mcp">
     <meta property="og:type" content="website">
     <meta property="og:image" content="https://simkit.dev/assets/og.jpg">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:image" content="https://simkit.dev/assets/og.jpg">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700;800&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
     <script type="application/ld+json">
-    {
-        "@context": "https://schema.org",
-        "@type": "FAQPage",
-        "mainEntity": [
-            { "@type": "Question", "name": "Is SimKit MCP free?", "acceptedAnswer": { "@type": "Answer", "text": "Yes. SimKit and its MCP server are free, with no account." } },
-            { "@type": "Question", "name": "Which coding agents does it work with?", "acceptedAnswer": { "@type": "Answer", "text": "Any MCP client. The simkit-mcp package works with any client that runs a command, including Claude Code, Cursor, Codex and Kiro." } },
-            { "@type": "Question", "name": "Does my app's data leave my Mac?", "acceptedAnswer": { "@type": "Answer", "text": "No. The server listens on 127.0.0.1 only and needs a token. SimKit uploads nothing your app sent or received. What your agent reads, it sends to its own model provider, as with any file it reads." } },
-            { "@type": "Question", "name": "Do I need the SimKit SDK?", "acceptedAnswer": { "@type": "Answer", "text": "For the simulator tools, no. Network capture, mocks and throttling need the one-line SimKit SDK in your debug build, or the DMG build of SimKit." } },
-            { "@type": "Question", "name": "Can the agent tap and type in my app?", "acceptedAnswer": { "@type": "Answer", "text": "No. SimKit observes and sets things up: requests, mocks, app data, simulator settings and screenshots. Use it next to the tool you already build and tap with." } }
-        ]
-    }
+{
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+        {
+            "@type": "Question",
+            "name": "Is it free?",
+            "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Yes. SimKit and its MCP server are free, with no account."
+            }
+        },
+        {
+            "@type": "Question",
+            "name": "Which coding agents does it work with?",
+            "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Any MCP client. simkit-mcp works with any client that runs a command, including Claude Code, Cursor, Codex and Kiro."
+            }
+        },
+        {
+            "@type": "Question",
+            "name": "Do I need the SimKit SDK?",
+            "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "For the simulator tools, no. Network capture, mocks and throttling need the one-line SimKit SDK in your debug build, or the DMG build of SimKit."
+            }
+        },
+        {
+            "@type": "Question",
+            "name": "Can the agent tap and type in my app?",
+            "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "No. SimKit observes and sets things up: requests, mocks, app data, simulator settings and screenshots. Use it next to the tool you already build and tap with."
+            }
+        },
+        {
+            "@type": "Question",
+            "name": "Does my app's data leave my Mac?",
+            "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Not through SimKit. Headers and bodies reach your agent as the app sent them, tokens included, so treat them as you would any secret your agent can read. Tools that return them take a redact option."
+            }
+        },
+        {
+            "@type": "Question",
+            "name": "It says SimKit isn't reachable.",
+            "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Open SimKit and check that Coding Agents is on in the Agents tab. The agent connects to the app, so the app has to be running."
+            }
+        }
+    ]
+}
+    </script>
+    <script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+        {
+            "@type": "ListItem",
+            "position": 1,
+            "name": "SimKit",
+            "item": "https://simkit.dev/"
+        },
+        {
+            "@type": "ListItem",
+            "position": 2,
+            "name": "MCP server",
+            "item": "https://simkit.dev/mcp"
+        }
+    ]
+}
     </script>
     <style>
         :root {
@@ -138,6 +205,7 @@
         .foot { display: flex; align-items: center; justify-content: space-between; gap: 24px; flex-wrap: wrap; max-width: 1180px; margin: 0 auto; padding: 0 24px; }
         .foot .links { display: flex; gap: 22px; flex-wrap: wrap; }
         .foot a:hover { color: var(--text); }
+        a.more { color: var(--text); text-decoration: underline; text-underline-offset: 3px; }
 
         @media (prefers-reduced-motion: reduce) { summary::after { transition: none; } }
         @media (max-width: 640px) {
@@ -165,7 +233,7 @@
 
 <main class="wrap">
     <header>
-        <span class="eyebrow">SimKit MCP</span>
+        <span class="eyebrow">iOS Simulator MCP server</span>
         <h1>Your agent wrote the code.<br><span class="soft">Now let it see what the app did.</span></h1>
         <p class="lead">Claude Code, Cursor and Codex can read your iOS app's requests and responses, mock a failing server, and drive the simulator, all through SimKit on your Mac. Free.</p>
 
@@ -213,8 +281,8 @@
         <h2>About 90 tools, grouped the way you work.</h2>
         <p>Your agent starts with the everyday ones and looks the others up as it needs them, so they don't fill its context.</p>
         <div class="groups">
-            <div><h3>Network</h3><p>Read captured requests and WebSockets, export cURL and HAR, throttle the connection, generate Swift models and OpenAPI.</p></div>
-            <div><h3>Mocks</h3><p>Add and remove mocked responses, expire a token, play a bad-network scenario such as hotel Wi-Fi or a flapping connection.</p></div>
+            <div><h3>Network</h3><p>Read captured requests and WebSockets, export cURL and HAR, throttle the connection, generate Swift models and OpenAPI. See the <a class="more" href="/ios-simulator-network-inspector">iOS Simulator network inspector</a> and <a class="more" href="/ios-simulator-slow-network">network throttling</a> guides.</p></div>
+            <div><h3>Mocks</h3><p>Add and remove mocked responses, expire a token, play a bad-network scenario such as hotel Wi-Fi or a flapping connection. See how to <a class="more" href="/ios-mock-api-responses">mock API responses</a>.</p></div>
             <div><h3>Simulator</h3><p>Boot, open links, set location and routes, appearance, text size, permissions, clipboard, Face ID and push notifications.</p></div>
             <div><h3>Apps and their data</h3><p>Relaunch and reset apps; read and change UserDefaults, files, keychain, databases and cookies; save and restore an app's whole state.</p></div>
             <div><h3>Capture</h3><p>Screenshots, video, the app's console, received pushes and links, an accessibility audit, and a zipped bug report.</p></div>
@@ -288,7 +356,7 @@ args = [<span class="c-s">"-y"</span>, <span class="c-s">"simkit-mcp"</span>]</c
         <div class="faq">
             <details><summary>Is it free?</summary><p>Yes. SimKit and its MCP server are free, with no account.</p></details>
             <details><summary>Which coding agents does it work with?</summary><p>Any MCP client. <code>simkit-mcp</code> works with any client that runs a command, including Claude Code, Cursor, Codex and Kiro.</p></details>
-            <details><summary>Do I need the SimKit SDK?</summary><p>For the simulator tools, no. Network capture, mocks and throttling need the one-line <a href="./#sdk">SimKit SDK</a> in your debug build, or the DMG build of SimKit.</p></details>
+            <details><summary>Do I need the SimKit SDK?</summary><p>For the simulator tools, no. Network capture, mocks and throttling need the one-line <a href="/#sdk">SimKit SDK</a> in your debug build, or the DMG build of SimKit.</p></details>
             <details><summary>Can the agent tap and type in my app?</summary><p>No. SimKit observes and sets things up: requests, mocks, app data, simulator settings and screenshots. Use it next to the tool you already build and tap with.</p></details>
             <details><summary>Does my app's data leave my Mac?</summary><p>Not through SimKit. Headers and bodies reach your agent as the app sent them, tokens included, so treat them as you would any secret your agent can read. Tools that return them take a <code>redact</code> option.</p></details>
             <details><summary>It says SimKit isn't reachable.</summary><p>Open SimKit and check that Coding Agents is on in the Agents tab. The agent connects to the app, so the app has to be running.</p></details>
@@ -311,9 +379,14 @@ args = [<span class="c-s">"-y"</span>, <span class="c-s">"simkit-mcp"</span>]</c
         <div class="links">
             <a href="https://apps.apple.com/en/app/simkit-simulator-toolkit/id6756196371?mt=12" target="_blank" rel="noopener">Mac App Store</a>
             <a href="https://github.com/ealtaca/simkit-website/releases/latest/download/SimKit.dmg">Direct Download</a>
-            <a href="changelog.html">Changelog</a>
-            <a href="privacy-policy.html">Privacy</a>
-            <a href="terms-of-use.html">Terms</a>
+            <a href="https://github.com/ealtaca/SimKitSDK-Binary" target="_blank" rel="noopener">SDK</a>
+            <a href="/mcp">MCP</a>
+            <a href="/ios-simulator-network-inspector">Network inspector</a>
+            <a href="/ios-mock-api-responses">Mock API responses</a>
+            <a href="/ios-simulator-slow-network">Slow network testing</a>
+            <a href="/changelog">Changelog</a>
+            <a href="/privacy-policy">Privacy</a>
+            <a href="/terms-of-use">Terms</a>
             <a href="mailto:ealtaca@gmail.com">Contact</a>
         </div>
     </div>

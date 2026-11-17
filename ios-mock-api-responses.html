@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>How to Mock API Responses in an iOS App | SimKit</title>
+    <meta name="description" content="Four ways to mock API responses in an iOS app: URLProtocol stubs, a local mock server, a proxy, or SimKit's mocks for an app running in the simulator.">
+    <meta name="theme-color" content="#0E0F12">
+    <meta name="color-scheme" content="dark">
+    <link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32.png">
+    <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
+    <link rel="canonical" href="https://simkit.dev/ios-mock-api-responses">
+    <meta property="og:title" content="How to Mock API Responses in an iOS App">
+    <meta property="og:description" content="Four ways to mock API responses in an iOS app: URLProtocol stubs, a local mock server, a proxy, or SimKit's mocks for an app running in the simulator.">
+    <meta property="og:url" content="https://simkit.dev/ios-mock-api-responses">
+    <meta property="og:type" content="article">
+    <meta property="og:image" content="https://simkit.dev/assets/og-mocks.jpg">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="How to Mock API Responses in an iOS App">
+    <meta name="twitter:description" content="Four ways to mock API responses in an iOS app: URLProtocol stubs, a local mock server, a proxy, or SimKit's mocks for an app running in the simulator.">
+    <meta name="twitter:image" content="https://simkit.dev/assets/og-mocks.jpg">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700;800&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+            { "@type": "ListItem", "position": 1, "name": "SimKit", "item": "https://simkit.dev/" },
+            { "@type": "ListItem", "position": 2, "name": "How to mock API responses in an iOS app", "item": "https://simkit.dev/ios-mock-api-responses" }
+        ]
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "TechArticle",
+        "headline": "How to mock API responses in an iOS app",
+        "description": "Four ways to mock API responses in an iOS app: URLProtocol stubs, a local mock server, a proxy, or SimKit's mocks for an app running in the simulator.",
+        "datePublished": "2026-11-17",
+        "dateModified": "2026-11-17",
+        "author": { "@type": "Person", "name": "Emre Can Altaca" },
+        "image": "https://simkit.dev/assets/og-mocks.jpg",
+        "mainEntityOfPage": "https://simkit.dev/ios-mock-api-responses"
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "SoftwareApplication",
+        "name": "SimKit",
+        "applicationCategory": "DeveloperApplication",
+        "operatingSystem": "macOS 14.0+",
+        "url": "https://simkit.dev/",
+        "downloadUrl": "https://apps.apple.com/en/app/simkit-simulator-toolkit/id6756196371?mt=12",
+        "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "mainEntity": [
+            { "@type": "Question", "name": "Can I mock without changing my app's code?", "acceptedAnswer": { "@type": "Answer", "text": "With the DMG build of SimKit on a simulator, yes: it can start your app with the SDK loaded into it. Otherwise it is one line of Swift in a debug build. A proxy rule also needs no code change, but it needs the proxy's certificate trusted on the simulator." } },
+            { "@type": "Question", "name": "Should I use SimKit mocks in unit tests?", "acceptedAnswer": { "@type": "Answer", "text": "No. Use URLProtocol stubs there, so the tests run the same way on every machine and in CI. SimKit is for manual checks and agent-driven checks on a running app." } },
+            { "@type": "Question", "name": "Can I return an error status or a slow response?", "acceptedAnswer": { "@type": "Answer", "text": "Yes. A SimKit mock sets the status code, the headers, the body and a delay." } },
+            { "@type": "Question", "name": "Do mocks work on a real iPhone?", "acceptedAnswer": { "@type": "Answer", "text": "Yes. Mocks reach an iPhone or iPad that runs your app with the SDK and is paired with your Mac by a 6-digit code." } },
+            { "@type": "Question", "name": "How do I share mocks with my team?", "acceptedAnswer": { "@type": "Answer", "text": "Save them as a scenario. A scenario is a .simkitscenario file you can send to a teammate." } },
+            { "@type": "Question", "name": "Is it free?", "acceptedAnswer": { "@type": "Answer", "text": "Yes. SimKit is free, with no account." } }
+        ]
+    }
+    </script>
+    <style>
+        :root {
+            --bg: #0E0F12; --bg-deep: #0A0B0E; --bg-2: #15171C; --bg-3: #1C1F26; --divider: #262A33;
+            --text: #E6E8EE; --text-2: #9AA1B2; --text-3: #7C8496;
+            --accent: #7C9CFF; --green: #3DDC97; --amber: #FFB454; --purple: #C792EA; --blue: #6CB6FF;
+            --mono: "Geist Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { -webkit-text-size-adjust: 100%; }
+        body { font-family: "Geist", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; -webkit-font-smoothing: antialiased; }
+        a { color: inherit; text-decoration: none; }
+        img { display: block; max-width: 100%; height: auto; }
+        .wrap { max-width: 880px; margin: 0 auto; padding: 0 24px; }
+
+        nav { border-bottom: 1px solid var(--divider); }
+        .nav-inner { display: flex; align-items: center; justify-content: space-between; height: 64px; max-width: 1180px; margin: 0 auto; padding: 0 24px; }
+        .brand { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 17px; letter-spacing: -.01em; }
+        .brand img { width: 36px; height: 36px; border-radius: 9px; }
+        .btn {
+            display: inline-flex; align-items: center; justify-content: center; gap: 8px; font-weight: 600; font-size: 13.5px; line-height: 1;
+            padding: 9px 14px; border-radius: 10px; color: #fff; border: 1px solid rgba(124,156,255,.55);
+            background: linear-gradient(180deg, rgba(124,156,255,.22), rgba(124,156,255,.08));
+            box-shadow: 0 0 0 1px rgba(124,156,255,.12), 0 8px 34px -8px rgba(124,156,255,.6), inset 0 1px 0 rgba(255,255,255,.12);
+        }
+        .btn:hover { border-color: rgba(124,156,255,.8); }
+        .btn svg { width: 15px; height: 15px; flex-shrink: 0; }
+        .btn-lg { font-size: 15px; padding: 13px 20px; border-radius: 12px; }
+        .btn-lg svg { width: 18px; height: 18px; }
+        .btn-ghost { background: rgba(255,255,255,.04); color: var(--text); border: 1px solid var(--divider); box-shadow: none; }
+        .btn-ghost:hover { border-color: #3A4050; }
+        .ver { font-family: var(--mono); font-size: .82em; font-weight: 500; padding: 3px 7px; margin-right: -6px; border-radius: 6px; background: rgba(124,156,255,.2); color: #CBD6FF; }
+        .btn-ghost .ver { background: rgba(255,255,255,.08); color: var(--text-2); }
+
+        header { padding: 72px 0 8px; }
+        .eyebrow { font-family: var(--mono); font-size: 12.5px; letter-spacing: .14em; text-transform: uppercase; color: var(--accent); }
+        h1 { font-size: clamp(34px, 6vw, 54px); font-weight: 800; line-height: 1.06; letter-spacing: -.04em; margin-top: 14px; text-wrap: balance; }
+        .updated { margin-top: 16px; font-family: var(--mono); font-size: 12.5px; color: var(--text-3); }
+        .lead { margin-top: 18px; color: var(--text-2); font-size: clamp(17px, 2vw, 19px); max-width: 680px; }
+        .lead strong { color: var(--text); font-weight: 600; }
+        .fine { margin-top: 14px; font-size: 13.5px; color: var(--text-3); }
+        p a, li a, td a { color: var(--text); border-bottom: 1px solid #3A4050; }
+        p a:hover, li a:hover, td a:hover { border-bottom-color: var(--accent); }
+
+        section { padding: 72px 0 0; scroll-margin-top: 16px; }
+        h2 { font-size: clamp(25px, 3.6vw, 34px); font-weight: 750; letter-spacing: -.03em; line-height: 1.14; margin: 10px 0 14px; text-wrap: balance; }
+        section > p { color: var(--text-2); font-size: 17px; max-width: 680px; }
+        section > p + p { margin-top: 14px; }
+        code { font-family: var(--mono); font-size: .88em; color: var(--text); background: var(--bg-3); padding: 1px 5px; border-radius: 5px; overflow-wrap: anywhere; }
+
+        /* Comparison table: scrolls inside its own box on narrow screens */
+        .table-wrap { margin-top: 28px; border: 1px solid var(--divider); border-radius: 14px; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+        table { width: 100%; min-width: 660px; border-collapse: collapse; font-size: 14.5px; }
+        th, td { text-align: left; vertical-align: top; padding: 14px 16px; border-top: 1px solid var(--divider); }
+        thead th { border-top: 0; background: var(--bg-2); font-family: var(--mono); font-size: 11.5px; font-weight: 500; letter-spacing: .08em; text-transform: uppercase; color: var(--text-3); white-space: nowrap; }
+        tbody th { font-weight: 600; color: var(--text); white-space: nowrap; }
+        tbody th a { border-bottom: 1px solid #3A4050; }
+        tbody th a:hover { border-bottom-color: var(--accent); }
+        td { color: var(--text-2); }
+        .table-wrap:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+        /* "Use it when" line that closes each method */
+        .when { margin-top: 20px; max-width: 680px; padding: 14px 16px; border: 1px solid var(--divider); border-radius: 12px; background: var(--bg-2); color: var(--text-2); font-size: 15.5px; }
+        .when strong { color: var(--text); font-weight: 600; }
+
+        /* Screenshots */
+        .frame { margin-top: 24px; border: 1px solid var(--divider); border-radius: 14px; overflow: hidden; background: var(--bg-deep); }
+        .frame img { width: 100%; }
+        .frame.small { max-width: 680px; }
+
+        /* Code blocks */
+        .code { position: relative; font-family: var(--mono); font-size: 13.5px; line-height: 1.7; background: var(--bg-deep); border: 1px solid var(--divider); border-radius: 14px; overflow: hidden; margin-top: 20px; }
+        .code-bar { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 9px 12px 9px 16px; border-bottom: 1px solid var(--divider); font-size: 12px; color: var(--text-3); letter-spacing: .02em; }
+        .code pre { padding: 16px 18px; overflow-x: auto; color: var(--text); }
+        .code pre code { background: none; padding: 0; font-size: inherit; overflow-wrap: normal; }
+        .code + p { margin-top: 20px; }
+        .copy { font: inherit; font-size: 12px; color: var(--text-2); background: rgba(255,255,255,.04); border: 1px solid var(--divider); border-radius: 7px; padding: 4px 9px; cursor: pointer; }
+        .copy:hover { color: var(--text); border-color: #3A4050; }
+        .copy:focus-visible, .btn:focus-visible, summary:focus-visible, a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+        .c-c { color: var(--text-3); } .c-k { color: var(--purple); } .c-t { color: var(--blue); } .c-s { color: var(--green); }
+
+        /* Session transcript */
+        .session { margin-top: 24px; border: 1px solid var(--divider); border-radius: 14px; background: var(--bg-deep); overflow: hidden; }
+        .session .who { font-family: var(--mono); font-size: 11.5px; letter-spacing: .08em; text-transform: uppercase; color: var(--text-3); }
+        .turn { padding: 16px 18px; border-top: 1px solid var(--divider); }
+        .turn:first-child { border-top: 0; }
+        .turn p { margin-top: 6px; color: var(--text); font-size: 15.5px; }
+        .calls { list-style: none; display: grid; gap: 6px; margin-top: 10px; font-family: var(--mono); font-size: 13px; }
+        .calls li { display: grid; grid-template-columns: minmax(0, 190px) 1fr; gap: 14px; color: var(--text-2); }
+        .calls b { font-weight: 500; color: var(--blue); overflow-wrap: anywhere; }
+        .calls .bad { color: var(--amber); }
+        .note { margin-top: 10px; font-size: 13px; color: var(--text-3); }
+        section > p.note { font-size: 13px; color: var(--text-3); }
+        section > p.after { margin-top: 20px; }
+
+        /* Steps */
+        .steps { list-style: none; counter-reset: step; margin-top: 36px; display: grid; gap: 36px; }
+        .steps > li { counter-increment: step; position: relative; padding-left: 46px; min-width: 0; }
+        .steps > li::before { content: counter(step); position: absolute; left: 0; top: -2px; width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center; font-family: var(--mono); font-size: 13.5px; color: var(--accent); border: 1px solid rgba(124,156,255,.45); background: rgba(124,156,255,.08); }
+        .steps h3 { font-size: 18px; font-weight: 650; letter-spacing: -.01em; }
+        .steps p { margin-top: 6px; color: var(--text-2); font-size: 15.5px; max-width: 620px; }
+        .steps .frame { margin-top: 16px; }
+
+        .facts { list-style: none; display: grid; gap: 10px; margin-top: 22px; color: var(--text-2); font-size: 15.5px; max-width: 680px; }
+        .facts li { position: relative; padding-left: 24px; }
+        .facts li::before { content: ""; position: absolute; left: 3px; top: .5em; width: 10px; height: 5px; border-left: 2px solid var(--green); border-bottom: 2px solid var(--green); transform: rotate(-45deg); }
+        .facts strong { color: var(--text); font-weight: 600; }
+
+        .faq { margin-top: 18px; }
+        details { border-bottom: 1px solid var(--divider); }
+        summary { list-style: none; cursor: pointer; padding: 20px 0; font-size: 16.5px; font-weight: 600; display: flex; justify-content: space-between; gap: 20px; }
+        summary::-webkit-details-marker { display: none; }
+        summary::after { content: "+"; font-family: var(--mono); color: var(--text-3); font-weight: 400; font-size: 20px; line-height: 1; transition: transform .2s; }
+        details[open] summary::after { transform: rotate(45deg); }
+        details p { color: var(--text-2); padding: 0 0 20px; font-size: 15.5px; max-width: 660px; }
+
+        .cta-row { display: flex; gap: 12px; flex-wrap: wrap; }
+        .get { margin-top: 40px; padding: 22px 24px; border: 1px solid var(--divider); border-radius: 14px; background: var(--bg-2); display: flex; align-items: center; justify-content: space-between; gap: 20px; flex-wrap: wrap; }
+        .get p { color: var(--text-2); font-size: 15.5px; }
+        .get strong { color: var(--text); font-weight: 600; }
+        .final { text-align: center; padding: 96px 0 88px; }
+        .final p { color: var(--text-2); font-size: 17px; margin: 0 auto 28px; max-width: 480px; }
+        .final .cta-row { justify-content: center; }
+        .final .fine { margin: 18px auto 0; }
+
+        footer { border-top: 1px solid var(--divider); padding: 36px 0; font-size: 14px; color: var(--text-3); }
+        .foot { display: flex; align-items: flex-start; justify-content: space-between; gap: 28px 48px; flex-wrap: wrap; max-width: 1180px; margin: 0 auto; padding: 0 24px; }
+        .foot-nav { display: grid; gap: 14px; }
+        .foot .links { display: flex; gap: 8px 22px; flex-wrap: wrap; align-items: baseline; }
+        .foot .label { font-family: var(--mono); font-size: 11.5px; letter-spacing: .08em; text-transform: uppercase; color: var(--text-3); min-width: 64px; }
+        .foot a { color: var(--text-2); }
+        .foot a.brand { color: var(--text); }
+        .foot a:hover { color: var(--text); }
+
+        @media (prefers-reduced-motion: reduce) { summary::after { transition: none; } }
+        @media (max-width: 640px) {
+            .wrap, .nav-inner, .foot { padding: 0 16px; }
+            header { padding-top: 48px; }
+            section { padding-top: 56px; }
+            .calls li { grid-template-columns: 1fr; gap: 0; }
+            .steps > li { padding-left: 0; padding-top: 40px; }
+            .steps > li::before { top: 0; }
+            .code { font-size: 12.5px; }
+            .get { padding: 18px 16px; }
+            .cta-row, .cta-row .btn { width: 100%; }
+            .foot .label { min-width: 100%; }
+        }
+    </style>
+</head>
+<body>
+
+<nav>
+    <div class="nav-inner">
+        <a href="/" class="brand"><img src="/assets/icon-96.png" alt="" width="36" height="36">SimKit</a>
+        <a href="/" class="btn">
+            <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            Download
+        </a>
+    </div>
+</nav>
+
+<main class="wrap">
+    <header>
+        <span class="eyebrow">Guide</span>
+        <h1>How to mock API responses in an iOS app</h1>
+        <p class="updated">Last updated: <time datetime="2026-11-17">17 November 2026</time></p>
+        <p class="lead">Pick the method by where the mock should live. In test code, use a <code>URLProtocol</code> stub. For a whole fake backend, run a local mock server and point the app at it. To change what a running app receives without touching its code, use a proxy rule or SimKit.</p>
+
+        <div class="table-wrap" tabindex="0" role="region" aria-label="Four ways to mock API responses, compared">
+            <table>
+                <thead>
+                    <tr><th scope="col">Method</th><th scope="col">Code change</th><th scope="col">Works on a running build</th><th scope="col">Good for</th></tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <th scope="row"><a href="#urlprotocol">URLProtocol stub</a></th>
+                        <td>Yes, in your test setup</td>
+                        <td>No, it is compiled in</td>
+                        <td>Unit and UI tests that must give the same result in CI</td>
+                    </tr>
+                    <tr>
+                        <th scope="row"><a href="#mock-server">Local mock server</a></th>
+                        <td>A base URL switch</td>
+                        <td>Yes, if the build points at it</td>
+                        <td>Building against an API that does not exist yet</td>
+                    </tr>
+                    <tr>
+                        <th scope="row"><a href="#proxy">Proxy rule</a></th>
+                        <td>None</td>
+                        <td>Yes</td>
+                        <td>Apps you cannot rebuild, once the proxy's certificate is trusted</td>
+                    </tr>
+                    <tr>
+                        <th scope="row"><a href="#simkit">SimKit mock</a></th>
+                        <td>One SDK line in a debug build, or none with the DMG build on a simulator</td>
+                        <td>Yes</td>
+                        <td>Changing one response in the app you are running now</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </header>
+
+    <section id="urlprotocol">
+        <span class="eyebrow">In test code</span>
+        <h2>1. URLProtocol stubs, for unit and UI tests</h2>
+        <p><code>URLProtocol</code> is the Foundation class that carries out a URL load. A subclass of your own can claim a request before it reaches the network and answer it with whatever the test needs. Register the subclass on the <code>URLSessionConfiguration</code> your networking code uses, and no request leaves the process.</p>
+
+        <div class="code">
+            <div class="code-bar"><span>StubURLProtocol.swift</span><button type="button" class="copy" data-copy-from="stub-code">Copy</button></div>
+<pre><code id="stub-code"><span class="c-k">import</span> <span class="c-t">Foundation</span>
+
+<span class="c-k">final class</span> <span class="c-t">StubURLProtocol</span>: <span class="c-t">URLProtocol</span> {
+    <span class="c-c">// Set by each test before it makes a request.</span>
+    <span class="c-k">static var</span> handler: ((<span class="c-t">URLRequest</span>) <span class="c-k">throws</span> -&gt; (<span class="c-t">HTTPURLResponse</span>, <span class="c-t">Data</span>))?
+
+    <span class="c-k">override class func</span> canInit(with request: <span class="c-t">URLRequest</span>) -&gt; <span class="c-t">Bool</span> {
+        <span class="c-k">true</span>
+    }
+
+    <span class="c-k">override class func</span> canonicalRequest(for request: <span class="c-t">URLRequest</span>) -&gt; <span class="c-t">URLRequest</span> {
+        request
+    }
+
+    <span class="c-k">override func</span> startLoading() {
+        <span class="c-k">guard let</span> handler = <span class="c-k">Self</span>.handler <span class="c-k">else</span> {
+            client?.urlProtocol(<span class="c-k">self</span>, didFailWithError: <span class="c-t">URLError</span>(.resourceUnavailable))
+            <span class="c-k">return</span>
+        }
+        <span class="c-k">do</span> {
+            <span class="c-k">let</span> (response, data) = <span class="c-k">try</span> handler(request)
+            client?.urlProtocol(<span class="c-k">self</span>, didReceive: response, cacheStoragePolicy: .notAllowed)
+            client?.urlProtocol(<span class="c-k">self</span>, didLoad: data)
+            client?.urlProtocolDidFinishLoading(<span class="c-k">self</span>)
+        } <span class="c-k">catch</span> {
+            client?.urlProtocol(<span class="c-k">self</span>, didFailWithError: error)
+        }
+    }
+
+    <span class="c-k">override func</span> stopLoading() {}
+}
+
+<span class="c-c">// In a test: build the session your networking code will use.</span>
+<span class="c-k">let</span> configuration = <span class="c-t">URLSessionConfiguration</span>.ephemeral
+configuration.protocolClasses = [<span class="c-t">StubURLProtocol</span>.<span class="c-k">self</span>]
+<span class="c-k">let</span> session = <span class="c-t">URLSession</span>(configuration: configuration)
+
+<span class="c-t">StubURLProtocol</span>.handler = { request <span class="c-k">in</span>
+    <span class="c-k">let</span> response = <span class="c-t">HTTPURLResponse</span>(url: request.url!, statusCode: 500,
+                                   httpVersion: <span class="c-k">nil</span>, headerFields: <span class="c-k">nil</span>)!
+    <span class="c-k">return</span> (response, <span class="c-t">Data</span>(<span class="c-s">#"{"error":"server"}"#</span>.utf8))
+}</code></pre>
+        </div>
+
+        <p>Set the handler at the start of each test, then run the code under test with that session. The answer is the same on every run and needs no server. In a UI test the stub has to be compiled into the app itself and switched on by something like a launch argument, because the test runner is a separate process.</p>
+        <p class="when"><strong>Use it for automated tests.</strong> This is the best option for unit and UI tests in CI, and SimKit does not replace it.</p>
+    </section>
+
+    <section id="mock-server">
+        <span class="eyebrow">A fake backend</span>
+        <h2>2. A local mock server</h2>
+        <p>Run a small HTTP server on your Mac that returns canned responses, and point the base URL of your debug build at it. Mockoon is one example with a GUI. The simulator shares your Mac's network, so <code>localhost</code> reaches the server. Plain HTTP may need an App Transport Security exception such as <code>NSAllowsLocalNetworking</code>.</p>
+        <p class="when"><strong>Use it to build against an API that does not exist yet.</strong> The whole app runs against the fake backend. The cost is a configuration switch in the app and a second thing to keep running and up to date.</p>
+    </section>
+
+    <section id="proxy">
+        <span class="eyebrow">No code change</span>
+        <h2>3. A proxy rule</h2>
+        <p>A debugging proxy sits between the app and the server and can answer a matching request itself. Proxyman and Charles both call this Map Local: the request gets a file from your Mac as its response, and the app is not changed. To read HTTPS, the proxy needs its certificate installed and trusted on the simulator, and an app that pins certificates can refuse it.</p>
+        <p class="when"><strong>Use it when you cannot rebuild the app,</strong> or when a proxy is already part of how you work.</p>
+    </section>
+
+    <section id="simkit">
+        <span class="eyebrow">The running app</span>
+        <h2>4. SimKit mocks, for the app you are running right now</h2>
+        <p>SimKit is a free Mac app that sits beside the iOS Simulator. It reads traffic from inside your app, so there is no proxy to configure and no certificate to trust. A mock starts from a request you just captured, and you change only what you need.</p>
+        <div class="frame"><img src="/assets/shots/mocks.webp" width="2400" height="1500" fetchpriority="high" decoding="async" alt="SimKit mock list with sale and error scenarios beside an app showing the mocked prices"></div>
+
+        <ol class="steps">
+            <li>
+                <h3>Capture the request</h3>
+                <p>Run your app with the <a href="/#sdk">SimKit SDK</a> in a debug build and open the screen you want to test. Its requests appear in SimKit's list. The <a href="/ios-simulator-network-inspector">iOS Simulator network inspector</a> page has the setup.</p>
+                <div class="frame"><img src="/assets/shots/network.webp" width="2400" height="1500" loading="lazy" decoding="async" alt="Captured requests in SimKit, the starting point for a mock"></div>
+            </li>
+            <li>
+                <h3>Turn it into a mock</h3>
+                <p>Start a mock from that request and edit the status code, the headers, the body or the delay. Return a 503 from the checkout call, an empty list of products, or the real body after a delay.</p>
+            </li>
+            <li>
+                <h3>Check what it catches</h3>
+                <p>Would Match shows which requests a rule catches before you switch it on, so you know its reach before the app feels it.</p>
+            </li>
+            <li>
+                <h3>Confirm it fired</h3>
+                <p>Every mock keeps a hit count. If the screen did not change, the count tells you whether the mock answered a request at all.</p>
+            </li>
+        </ol>
+
+        <div class="get">
+            <p><strong>SimKit is free, with no account.</strong> macOS 14 or later.</p>
+            <div class="cta-row">
+                <a href="https://apps.apple.com/en/app/simkit-simulator-toolkit/id6756196371?mt=12&amp;ct=mocks-page" class="btn btn-lg" target="_blank" rel="noopener">
+                    <svg aria-hidden="true" viewBox="0 0 24 24" fill="currentColor"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
+                    Mac App Store <span class="ver" data-ver="appstore">1.7</span>
+                </a>
+                <a href="https://github.com/ealtaca/simkit-website/releases/latest/download/SimKit.dmg" class="btn btn-lg btn-ghost">
+                    <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                    Download DMG <span class="ver" data-ver="dmg">1.8</span>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <section id="scenarios">
+        <span class="eyebrow">Teams</span>
+        <h2>Save scenarios and share them</h2>
+        <p>Mocks are more useful when the whole team has the same ones. SimKit saves scenarios as <code>.simkitscenario</code> files that you can share. Keep one for a sale and one for errors, like the two groups in the screenshot above, and a teammate can check the same states you did.</p>
+    </section>
+
+    <section id="token-expiry">
+        <span class="eyebrow">Auth</span>
+        <h2>Test an expired token</h2>
+        <p>An expired token is not a mock in the strict sense, but the goal is the same: a state the backend will not give you on demand. SimKit's Auth tab shows every JWT your app sends, decoded, with its claims, its history and a live countdown. Press Expire Token and watch whether your refresh logic holds.</p>
+        <div class="frame small"><img src="/assets/shots/auth.webp" width="1600" height="1000" loading="lazy" decoding="async" alt="SimKit Auth tab with a decoded JWT and an Expire Token control"></div>
+    </section>
+
+    <section id="agent">
+        <span class="eyebrow">Coding agents</span>
+        <h2>Let a coding agent set the mock</h2>
+        <p>SimKit has an MCP server, so Claude Code, Cursor or Codex can run the same check for you. Asked for a failing login, an agent can call <code>set_mock</code>, <code>relaunch_app</code>, <code>wait_for_request</code>, <code>screenshot</code> and <code>remove_mock</code> in turn.</p>
+        <div class="session" aria-label="An example session">
+            <div class="turn">
+                <span class="who">You</span>
+                <p>Mock /login to return a 500, relaunch the app and show me what the user sees.</p>
+            </div>
+            <div class="turn">
+                <span class="who">Agent, through SimKit</span>
+                <ul class="calls">
+                    <li><b>set_mock</b><span>POST /login answers <span class="bad">500</span></span></li>
+                    <li><b>relaunch_app</b><span>com.example.shop restarted</span></li>
+                    <li><b>wait_for_request</b><span>POST /login finished, <span class="bad">500</span> from the mock</span></li>
+                    <li><b>screenshot</b><span>the login screen, as the simulator shows it</span></li>
+                    <li><b>remove_mock</b><span>back to the real server</span></li>
+                </ul>
+            </div>
+        </div>
+        <p class="note">An illustration of a session. The tool names are SimKit's own.</p>
+        <p class="after">The <a href="/mcp">SimKit MCP server</a> guide has the setup for each agent.</p>
+    </section>
+
+    <section id="limits">
+        <span class="eyebrow">Before you start</span>
+        <h2>Requirements and limits</h2>
+        <ul class="facts">
+            <li><strong>The SDK, or the DMG build.</strong> Mocks need the SimKit SDK in a debug build: one line of Swift, enabled inside <code>#if DEBUG</code>. On a simulator, the DMG build of SimKit can start your app with the SDK loaded into it, and your code does not change.</li>
+            <li><strong>Real devices too.</strong> Mocks also reach an iPhone or iPad paired with your Mac.</li>
+            <li><strong>Not for CI.</strong> SimKit mocks are for a running app on your desk. Automated tests should keep their <code>URLProtocol</code> stubs.</li>
+            <li><strong>One endpoint, not the connection.</strong> A delay slows the response you mocked. For a slow connection as a whole, see <a href="/ios-simulator-slow-network">slow network testing</a>.</li>
+            <li><strong>Versions.</strong> SimKit needs macOS 14 or later. The SDK supports iOS 13 or later.</li>
+        </ul>
+    </section>
+
+    <section id="faq">
+        <span class="eyebrow">FAQ</span>
+        <h2>Questions, answered.</h2>
+        <div class="faq">
+            <details><summary>Can I mock without changing my app's code?</summary><p>With the DMG build of SimKit on a simulator, yes: it can start your app with the SDK loaded into it. Otherwise it is one line of Swift in a debug build. A proxy rule also needs no code change, but it needs the proxy's certificate trusted on the simulator.</p></details>
+            <details><summary>Should I use SimKit mocks in unit tests?</summary><p>No. Use URLProtocol stubs there, so the tests run the same way on every machine and in CI. SimKit is for manual checks and agent-driven checks on a running app.</p></details>
+            <details><summary>Can I return an error status or a slow response?</summary><p>Yes. A SimKit mock sets the status code, the headers, the body and a delay.</p></details>
+            <details><summary>Do mocks work on a real iPhone?</summary><p>Yes. Mocks reach an iPhone or iPad that runs your app with the SDK and is paired with your Mac by a 6-digit code.</p></details>
+            <details><summary>How do I share mocks with my team?</summary><p>Save them as a scenario. A scenario is a .simkitscenario file you can send to a teammate.</p></details>
+            <details><summary>Is it free?</summary><p>Yes. SimKit is free, with no account.</p></details>
+        </div>
+    </section>
+
+    <section class="final">
+        <h2>Mock the next response in the app you already have running.</h2>
+        <p>Free on the Mac App Store, or as a DMG.</p>
+        <div class="cta-row">
+            <a href="https://apps.apple.com/en/app/simkit-simulator-toolkit/id6756196371?mt=12&amp;ct=mocks-page" class="btn btn-lg" target="_blank" rel="noopener">
+                <svg aria-hidden="true" viewBox="0 0 24 24" fill="currentColor"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
+                Mac App Store <span class="ver" data-ver="appstore">1.7</span>
+            </a>
+            <a href="https://github.com/ealtaca/simkit-website/releases/latest/download/SimKit.dmg" class="btn btn-lg btn-ghost">
+                <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                Download DMG <span class="ver" data-ver="dmg">1.8</span>
+            </a>
+        </div>
+        <p class="fine">Free · macOS 14 or later · DMG signed and notarized by Apple</p>
+    </section>
+</main>
+
+<footer>
+    <div class="foot">
+        <a href="/" class="brand"><img src="/assets/icon-96.png" alt="" width="36" height="36">SimKit</a>
+        <div class="foot-nav">
+            <div class="links">
+                <span class="label">Guides</span>
+                <a href="/ios-simulator-network-inspector">Network inspector</a>
+                <a href="/ios-mock-api-responses" aria-current="page">Mock API responses</a>
+                <a href="/ios-simulator-slow-network">Slow network testing</a>
+                <a href="/mcp">MCP</a>
+            </div>
+            <div class="links">
+                <span class="label">SimKit</span>
+                <a href="https://apps.apple.com/en/app/simkit-simulator-toolkit/id6756196371?mt=12&amp;ct=mocks-page" target="_blank" rel="noopener">Mac App Store</a>
+                <a href="https://github.com/ealtaca/simkit-website/releases/latest/download/SimKit.dmg">Direct Download</a>
+                <a href="/changelog">Changelog</a>
+                <a href="/privacy-policy">Privacy</a>
+                <a href="/terms-of-use">Terms</a>
+                <a href="mailto:ealtaca@gmail.com">Contact</a>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<script>
+    document.querySelectorAll('.copy').forEach(function (button) {
+        button.addEventListener('click', function () {
+            var source = document.getElementById(button.dataset.copyFrom);
+            var text = source ? source.textContent : button.dataset.copy;
+            var done = function () {
+                button.textContent = 'Copied';
+                setTimeout(function () { button.textContent = 'Copy'; }, 1600);
+            };
+            if (navigator.clipboard) {
+                navigator.clipboard.writeText(text).then(done, function () {});
+            }
+        });
+    });
+
+    // Versions on the download buttons, as on the home page. The HTML carries the
+    // last known ones, so a failed request only leaves them stale.
+    var fill = function (key, v) {
+        document.querySelectorAll('[data-ver="' + key + '"]').forEach(function (el) { el.textContent = v; });
+    };
+    fetch('https://itunes.apple.com/lookup?id=6756196371')
+        .then(function (r) { return r.json(); })
+        .then(function (d) { var v = d.results && d.results[0] && d.results[0].version; if (v) fill('appstore', v); })
+        .catch(function () {});
+    fetch('https://api.github.com/repos/ealtaca/simkit-website/releases?per_page=20')
+        .then(function (r) { return r.json(); })
+        .then(function (list) {
+            if (!Array.isArray(list)) return;
+            var live = list.filter(function (r) { return !r.draft && !r.prerelease; })
+                .sort(function (a, b) { return a.published_at < b.published_at ? 1 : -1; });
+            if (live[0]) fill('dmg', live[0].tag_name.replace(/^v/, ''));
+        })
+        .catch(function () {});
+</script>
+</body>
+</html>

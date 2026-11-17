@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>iOS Simulator Network Inspector, No Proxy or Certs | SimKit</title>
+    <meta name="description" content="See every HTTP and HTTPS request your app makes in the iOS Simulator, with no proxy and no certificate to install. A free Mac app, with setup steps.">
+    <meta name="theme-color" content="#0E0F12">
+    <meta name="color-scheme" content="dark">
+    <link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32.png">
+    <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
+    <link rel="canonical" href="https://simkit.dev/ios-simulator-network-inspector">
+    <meta property="og:title" content="iOS Simulator Network Inspector, No Proxy or Certs | SimKit">
+    <meta property="og:description" content="See every HTTP and HTTPS request your app makes in the iOS Simulator, with no proxy and no certificate to install. A free Mac app, with setup steps.">
+    <meta property="og:url" content="https://simkit.dev/ios-simulator-network-inspector">
+    <meta property="og:type" content="website">
+    <meta property="og:image" content="https://simkit.dev/assets/og-network.jpg">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="iOS Simulator Network Inspector, No Proxy or Certs | SimKit">
+    <meta name="twitter:description" content="See every HTTP and HTTPS request your app makes in the iOS Simulator, with no proxy and no certificate to install. A free Mac app, with setup steps.">
+    <meta name="twitter:image" content="https://simkit.dev/assets/og-network.jpg">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700;800&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+            { "@type": "ListItem", "position": 1, "name": "SimKit", "item": "https://simkit.dev/" },
+            { "@type": "ListItem", "position": 2, "name": "iOS Simulator network inspector", "item": "https://simkit.dev/ios-simulator-network-inspector" }
+        ]
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "url": "https://simkit.dev/ios-simulator-network-inspector",
+        "datePublished": "2026-11-17",
+        "dateModified": "2026-11-17",
+        "mainEntity": [
+            { "@type": "Question", "name": "Do I need a proxy or a certificate to see HTTPS traffic in the iOS Simulator?", "acceptedAnswer": { "@type": "Answer", "text": "No. The SimKit SDK reports requests from inside your app, after the system has decrypted them, so there is nothing to install on the simulator and nothing to trust." } },
+            { "@type": "Question", "name": "Do I have to change my code?", "acceptedAnswer": { "@type": "Answer", "text": "One line of Swift in a debug build. On a simulator, the DMG build of SimKit can also load the SDK into your app for you, and then your code doesn't change." } },
+            { "@type": "Question", "name": "Does it work on a real device?", "acceptedAnswer": { "@type": "Answer", "text": "Yes. An iPhone or iPad running your app with the SDK pairs with your Mac by a 6-digit code and sends its traffic over Wi-Fi, encrypted." } },
+            { "@type": "Question", "name": "Does it show WebSocket traffic?", "acceptedAnswer": { "@type": "Answer", "text": "Yes. Socket frames and web view page loads appear next to your HTTP calls." } },
+            { "@type": "Question", "name": "Do my requests leave my Mac?", "acceptedAnswer": { "@type": "Answer", "text": "Captured requests, headers, bodies and tokens stay on your Mac. If you connect a coding agent, what it reads goes to its own model provider, as with any file it reads. SimKit sends anonymous usage data, including the bundle IDs of apps you debug, to Firebase, and you can turn it off in Settings. See the Privacy Policy for details." } },
+            { "@type": "Question", "name": "Is it free?", "acceptedAnswer": { "@type": "Answer", "text": "Yes. SimKit is free, with no account." } }
+        ]
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "SoftwareApplication",
+        "name": "SimKit",
+        "applicationCategory": "DeveloperApplication",
+        "operatingSystem": "macOS 14.0+",
+        "url": "https://simkit.dev/",
+        "downloadUrl": "https://apps.apple.com/en/app/simkit-simulator-toolkit/id6756196371?mt=12",
+        "image": "https://simkit.dev/assets/og-network.jpg",
+        "author": { "@type": "Person", "name": "Emre Can Altaca" },
+        "offers": [{ "@type": "Offer", "price": "0", "priceCurrency": "USD", "description": "Free" }],
+        "featureList": [
+            "Network monitoring with query filter and timing, no proxy or certificates",
+            "Edit and resend requests, request origin, insights and analytics",
+            "API contracts, load tests, HAR export",
+            "Network traffic and mocks on real iPhones and iPads",
+            "JWT decoding with expiry and redacted secrets",
+            "Copy as cURL, fetch, HTTPie or Swift",
+            "Generate Codable models from responses"
+        ]
+    }
+    </script>
+    <style>
+        :root {
+            --bg: #0E0F12; --bg-deep: #0A0B0E; --bg-2: #15171C; --bg-3: #1C1F26; --divider: #262A33;
+            --text: #E6E8EE; --text-2: #9AA1B2; --text-3: #7C8496;
+            --accent: #7C9CFF; --green: #3DDC97; --amber: #FFB454; --purple: #C792EA; --blue: #6CB6FF;
+            --mono: "Geist Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { -webkit-text-size-adjust: 100%; }
+        body { font-family: "Geist", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; -webkit-font-smoothing: antialiased; }
+        a { color: inherit; text-decoration: none; }
+        img { display: block; max-width: 100%; height: auto; }
+        .wrap { max-width: 880px; margin: 0 auto; padding: 0 24px; }
+
+        nav.top { border-bottom: 1px solid var(--divider); }
+        .nav-inner { display: flex; align-items: center; justify-content: space-between; height: 64px; max-width: 1180px; margin: 0 auto; padding: 0 24px; }
+        .brand { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 17px; letter-spacing: -.01em; }
+        .brand img { width: 36px; height: 36px; border-radius: 9px; }
+        .btn {
+            display: inline-flex; align-items: center; justify-content: center; gap: 8px; font-weight: 600; font-size: 13.5px; line-height: 1;
+            padding: 9px 14px; border-radius: 10px; color: #fff; border: 1px solid rgba(124,156,255,.55);
+            background: linear-gradient(180deg, rgba(124,156,255,.22), rgba(124,156,255,.08));
+            box-shadow: 0 0 0 1px rgba(124,156,255,.12), 0 8px 34px -8px rgba(124,156,255,.6), inset 0 1px 0 rgba(255,255,255,.12);
+        }
+        .btn:hover { border-color: rgba(124,156,255,.8); }
+        .btn svg { width: 15px; height: 15px; flex-shrink: 0; }
+        .btn-lg { font-size: 15px; padding: 13px 20px; border-radius: 12px; }
+        .btn-lg svg { width: 18px; height: 18px; }
+        .btn-ghost { background: rgba(255,255,255,.04); color: var(--text); border: 1px solid var(--divider); box-shadow: none; }
+        .btn-ghost:hover { border-color: #3A4050; }
+        .ver { font-family: var(--mono); font-size: .82em; font-weight: 500; padding: 3px 7px; margin-right: -6px; border-radius: 6px; background: rgba(124,156,255,.2); color: #CBD6FF; }
+        .btn-ghost .ver { background: rgba(255,255,255,.08); color: var(--text-2); }
+        .ver:empty { display: none; }
+
+        header { padding: 56px 0 8px; }
+        .crumbs { font-family: var(--mono); font-size: 12.5px; letter-spacing: .04em; color: var(--text-3); }
+        .crumbs ol { list-style: none; display: flex; flex-wrap: wrap; gap: 8px; }
+        .crumbs li + li::before { content: "/"; margin-right: 8px; color: var(--divider); }
+        .crumbs a { color: var(--text-2); }
+        .crumbs a:hover { color: var(--text); }
+        h1 { font-size: clamp(32px, 5.4vw, 50px); font-weight: 800; line-height: 1.07; letter-spacing: -.04em; margin-top: 18px; text-wrap: balance; }
+        .updated { margin-top: 14px; font-family: var(--mono); font-size: 12.5px; color: var(--text-3); }
+        .lead { margin-top: 20px; color: var(--text-2); font-size: clamp(17px, 2vw, 18.5px); max-width: 680px; }
+        .lead + .lead { margin-top: 14px; }
+        .lead strong { color: var(--text); font-weight: 600; }
+        .fine { margin-top: 14px; font-size: 13.5px; color: var(--text-3); }
+        p a, li a, td a { color: var(--text); border-bottom: 1px solid #3A4050; }
+        p a:hover, li a:hover, td a:hover { border-bottom-color: var(--accent); }
+
+        section { padding: 60px 0 0; }
+        h2 { font-size: clamp(24px, 3.4vw, 32px); font-weight: 750; letter-spacing: -.03em; line-height: 1.15; margin: 0 0 14px; text-wrap: balance; }
+        section > p { color: var(--text-2); font-size: 17px; max-width: 680px; }
+        section > p + p { margin-top: 14px; }
+        code { font-family: var(--mono); font-size: .88em; color: var(--text); background: var(--bg-3); padding: 1px 5px; border-radius: 5px; overflow-wrap: anywhere; }
+
+        /* Screenshots */
+        .shot { margin-top: 28px; border: 1px solid var(--divider); border-radius: 14px; overflow: hidden; background: var(--bg-deep); }
+        .shot img { width: 100%; }
+        .shot.tall { max-width: 380px; }
+        header .shot { margin-top: 40px; }
+
+        /* Comparison table */
+        .table-wrap { margin-top: 22px; border: 1px solid var(--divider); border-radius: 14px; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+        table { width: 100%; min-width: 620px; border-collapse: collapse; font-size: 15px; }
+        th, td { text-align: left; vertical-align: top; padding: 14px 16px; border-top: 1px solid var(--divider); }
+        thead th { border-top: 0; background: var(--bg-2); font-family: var(--mono); font-size: 12px; font-weight: 500; letter-spacing: .06em; text-transform: uppercase; color: var(--text-3); }
+        tbody th { font-weight: 600; color: var(--text); width: 24%; }
+        tbody th small { display: block; margin-top: 2px; font-weight: 400; font-size: 13.5px; color: var(--text-3); }
+        td { color: var(--text-2); }
+
+        /* Code blocks */
+        .code { position: relative; font-family: var(--mono); font-size: 13.5px; line-height: 1.75; background: var(--bg-deep); border: 1px solid var(--divider); border-radius: 14px; overflow: hidden; margin-top: 14px; max-width: 680px; }
+        .code-bar { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 9px 12px 9px 16px; border-bottom: 1px solid var(--divider); font-size: 12px; color: var(--text-3); letter-spacing: .02em; }
+        .code pre { padding: 16px 18px; overflow-x: auto; color: var(--text); }
+        .code pre code { background: none; padding: 0; font-size: inherit; overflow-wrap: normal; }
+        .copy { font: inherit; font-size: 12px; color: var(--text-2); background: rgba(255,255,255,.04); border: 1px solid var(--divider); border-radius: 7px; padding: 4px 9px; cursor: pointer; }
+        .copy:hover { color: var(--text); border-color: #3A4050; }
+        .copy:focus-visible, .btn:focus-visible, summary:focus-visible, a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+        .c-c { color: var(--text-3); } .c-k { color: var(--purple); } .c-t { color: var(--blue); } .c-s { color: var(--green); }
+
+        /* Steps */
+        .steps { list-style: none; counter-reset: step; margin-top: 26px; display: grid; gap: 32px; }
+        .steps > li { counter-increment: step; position: relative; padding-left: 46px; min-width: 0; }
+        .steps > li::before { content: counter(step); position: absolute; left: 0; top: -2px; width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center; font-family: var(--mono); font-size: 13.5px; color: var(--accent); border: 1px solid rgba(124,156,255,.45); background: rgba(124,156,255,.08); }
+        .steps h3 { font-size: 18px; font-weight: 650; letter-spacing: -.01em; }
+        .steps p { margin-top: 6px; color: var(--text-2); font-size: 15.5px; max-width: 634px; }
+
+        .steps .code + p { margin-top: 18px; }
+
+        .facts { list-style: none; display: grid; gap: 10px; margin-top: 18px; color: var(--text-2); font-size: 16px; max-width: 680px; }
+        .facts li { position: relative; padding-left: 24px; }
+        .facts li::before { content: ""; position: absolute; left: 4px; top: .62em; width: 6px; height: 6px; border-radius: 2px; background: var(--blue); }
+        .facts strong { color: var(--text); font-weight: 600; }
+
+        .faq { margin-top: 6px; }
+        details { border-bottom: 1px solid var(--divider); }
+        summary { list-style: none; cursor: pointer; padding: 20px 0; font-size: 16.5px; font-weight: 600; display: flex; justify-content: space-between; gap: 20px; }
+        summary::-webkit-details-marker { display: none; }
+        summary::after { content: "+"; font-family: var(--mono); color: var(--text-3); font-weight: 400; font-size: 20px; line-height: 1; transition: transform .2s; }
+        details[open] summary::after { transform: rotate(45deg); }
+        details p { color: var(--text-2); padding: 0 0 20px; font-size: 15.5px; max-width: 660px; }
+
+        .cta-row { display: flex; gap: 12px; flex-wrap: wrap; }
+        header .cta-row { margin-top: 28px; }
+        .final { text-align: center; padding: 88px 0 84px; }
+        .final p { color: var(--text-2); font-size: 17px; margin: 0 auto 28px; max-width: 480px; }
+        .final .cta-row { justify-content: center; }
+
+        footer { border-top: 1px solid var(--divider); padding: 36px 0; font-size: 14px; color: var(--text-3); }
+        .foot { display: flex; align-items: flex-start; justify-content: space-between; gap: 28px 48px; flex-wrap: wrap; max-width: 1180px; margin: 0 auto; padding: 0 24px; }
+        .foot-cols { display: flex; gap: 28px 56px; flex-wrap: wrap; }
+        .foot h2 { font-family: var(--mono); font-size: 12px; font-weight: 500; letter-spacing: .08em; text-transform: uppercase; color: var(--text-3); margin: 0 0 10px; }
+        .foot .links { display: flex; gap: 8px 22px; flex-wrap: wrap; max-width: 420px; color: var(--text-2); }
+        .foot a:hover { color: var(--text); }
+
+        @media (prefers-reduced-motion: reduce) { summary::after { transition: none; } }
+        @media (max-width: 640px) {
+            .wrap, .nav-inner, .foot { padding: 0 16px; }
+            header { padding-top: 40px; }
+            section { padding-top: 48px; }
+            .cta-row .btn-lg { width: 100%; }
+            .steps > li { padding-left: 0; padding-top: 40px; }
+            .steps > li::before { top: 0; }
+            .shot { border-radius: 10px; }
+            .final { padding: 72px 0 68px; }
+        }
+    </style>
+</head>
+<body>
+
+<nav class="top">
+    <div class="nav-inner">
+        <a href="/" class="brand"><img src="/assets/icon-96.png" alt="" width="36" height="36">SimKit</a>
+        <a href="/" class="btn">
+            <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            Download
+        </a>
+    </div>
+</nav>
+
+<main class="wrap">
+    <header>
+        <nav class="crumbs" aria-label="Breadcrumb">
+            <ol>
+                <li><a href="/">SimKit</a></li>
+                <li aria-current="page">iOS Simulator network inspector</li>
+            </ol>
+        </nav>
+        <h1>Inspect network requests in the iOS Simulator, without a proxy</h1>
+        <p class="updated">Last updated: <time datetime="2026-11-17">17 November 2026</time></p>
+
+        <p class="lead">The iOS Simulator has no built-in list of the requests your app makes. You have two ways to get one. A proxy app on your Mac, such as Proxyman, Charles or mitmproxy, sits between the simulator and the network, and needs its certificate installed and trusted on each simulator before it can read HTTPS. The other way is a tool that reads requests from inside your app.</p>
+        <p class="lead"><strong>SimKit is the second kind.</strong> Add one line to a debug build and every request shows up in a panel beside the simulator, HTTPS included. It is free and runs on macOS 14 or later.</p>
+
+        <div class="cta-row">
+            <a href="https://apps.apple.com/en/app/simkit-simulator-toolkit/id6756196371?mt=12&amp;ct=network-page" class="btn btn-lg" target="_blank" rel="noopener">
+                <svg aria-hidden="true" viewBox="0 0 24 24" fill="currentColor"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
+                Mac App Store <span class="ver" data-ver="appstore">1.7</span>
+            </a>
+            <a href="https://github.com/ealtaca/simkit-website/releases/latest/download/SimKit.dmg" class="btn btn-lg btn-ghost">
+                <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                Download DMG <span class="ver" data-ver="dmg">1.8</span>
+            </a>
+        </div>
+        <p class="fine">Free · macOS 14 or later · DMG signed and notarized by Apple</p>
+
+        <figure class="shot">
+            <img src="/assets/shots/network.webp" width="2400" height="1500" fetchpriority="high" decoding="async" alt="SimKit network inspector listing an iOS app's requests with status, timing bars and headers">
+        </figure>
+    </header>
+
+    <section>
+        <h2>Ways to see your app's requests</h2>
+        <p>Both approaches work. They differ in what you set up and in whose traffic you get to see.</p>
+        <div class="table-wrap" tabindex="0" role="region" aria-label="Comparison of a proxy app and in-app reporting">
+            <table>
+                <thead>
+                    <tr><th scope="col">Approach</th><th scope="col">What you set up</th><th scope="col">What it shows</th><th scope="col">Keep in mind</th></tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <th scope="row">Proxy app<small>Proxyman, Charles, mitmproxy</small></th>
+                        <td>The proxy on your Mac, and its certificate installed and trusted on each simulator. No code change.</td>
+                        <td>Traffic from any app that goes through the proxy.</td>
+                        <td>Certificate pinning can block it.</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">In-app reporting<small>SimKit</small></th>
+                        <td>The SDK in your debug build, or the DMG build of SimKit to load it for you. No proxy and no certificate.</td>
+                        <td>Your app's requests, HTTPS included.</td>
+                        <td>It sees only your app.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <p style="margin-top: 20px">A proxy is the better choice when you need traffic from an app you cannot rebuild, or traffic that does not come from an app at all. For the app you are building, reading requests from inside it skips the certificate work.</p>
+    </section>
+
+    <section id="setup">
+        <h2>Set up SimKit in three steps</h2>
+        <ol class="steps">
+            <li>
+                <h3>Install SimKit</h3>
+                <p>Get it from the <a href="https://apps.apple.com/en/app/simkit-simulator-toolkit/id6756196371?mt=12&amp;ct=network-page" target="_blank" rel="noopener">Mac App Store</a> or download the <a href="https://github.com/ealtaca/simkit-website/releases/latest/download/SimKit.dmg">DMG</a>. It needs macOS 14 or later. There is no account to create.</p>
+            </li>
+            <li>
+                <h3>Add the SDK</h3>
+                <p>In Xcode, choose File &gt; Add Package Dependencies and enter <code>github.com/ealtaca/SimKitSDK-Binary</code>. The <a href="/#sdk">SimKit SDK</a> is a Swift package for iOS 13 or later. Then enable it when your app starts:</p>
+                <div class="code">
+                    <div class="code-bar"><span>Swift</span><button type="button" class="copy" data-copy="import SimKit
+
+#if DEBUG
+SimKitSDK.shared.enable()
+#endif">Copy</button></div>
+<pre><code><span class="c-k">import</span> <span class="c-t">SimKit</span>
+
+<span class="c-k">#if</span> DEBUG
+<span class="c-t">SimKitSDK</span>.shared.enable()
+<span class="c-k">#endif</span></code></pre>
+                </div>
+                <p>The SDK talks to SimKit on your Mac over the local network, so it needs one Info.plist key, <code>NSAllowsLocalNetworking</code>:</p>
+                <div class="code">
+                    <div class="code-bar"><span>Info.plist</span><button type="button" class="copy" data-copy="<key>NSAppTransportSecurity</key>
+<dict>
+    <key>NSAllowsLocalNetworking</key>
+    <true/>
+</dict>">Copy</button></div>
+<pre><code>&lt;key&gt;<span class="c-t">NSAppTransportSecurity</span>&lt;/key&gt;
+&lt;dict&gt;
+    &lt;key&gt;<span class="c-t">NSAllowsLocalNetworking</span>&lt;/key&gt;
+    &lt;true/&gt;
+&lt;/dict&gt;</code></pre>
+                </div>
+            </li>
+            <li>
+                <h3>Run your app</h3>
+                <p>Build and run in the simulator as usual. Requests show up live in the panel beside the simulator, each with its status, timing and size.</p>
+            </li>
+        </ol>
+        <figure class="shot">
+            <img src="/assets/shots/hero.webp" width="2400" height="1500" loading="lazy" decoding="async" alt="SimKit's network panel beside an iPhone simulator running a demo shop app">
+        </figure>
+    </section>
+
+    <section>
+        <h2>No SDK yet? Let the DMG build load it</h2>
+        <p>The DMG build of SimKit can start a simulator app with the SDK loaded into it. Requests show up and mocks apply, and your code does not change. This is in the DMG build only, and it works on the simulator only. The App Store build needs the SDK added to your project.</p>
+    </section>
+
+    <section>
+        <h2>Find the request that matters</h2>
+        <p>A busy app makes a lot of calls. Type a query and the list narrows to the failures, the slow ones or a single host.</p>
+        <ul class="facts">
+            <li><strong>Query filter.</strong> For example <code>status:&gt;=400 host:api slow:&gt;300ms</code> keeps failed or slow calls to one host.</li>
+            <li><strong>Status, timing and size</strong> for every call, as it happens.</li>
+            <li><strong>Request origin.</strong> The code a request came from, so you know which screen or service fired it.</li>
+            <li><strong>JSON tree.</strong> Filter a body by path, like <code>$.users[*].email</code>, and copy the path, key or value.</li>
+        </ul>
+    </section>
+
+    <section>
+        <h2>What you can do with a request</h2>
+        <ul class="facts">
+            <li><strong>Edit and resend.</strong> Change a request, send it again and compare the two responses.</li>
+            <li><strong>Copy it</strong> as cURL, fetch, HTTPie or Swift, or export the session as HAR.</li>
+            <li><strong>Generate a model.</strong> Swift Codable types from any JSON response.</li>
+            <li><strong>Save a contract.</strong> Keep the shape of a response and get warned when the endpoint returns something else.</li>
+        </ul>
+        <p style="margin-top: 18px">A captured request is also the starting point for a mock. The guide to <a href="/ios-mock-api-responses">mock API responses</a> covers that. To watch the same calls on a bad connection, see how to <a href="/ios-simulator-slow-network">simulate a slow network</a>.</p>
+    </section>
+
+    <section>
+        <h2>Patterns SimKit points out</h2>
+        <p>Some problems only show across many requests. Insights flags refresh storms, retried POSTs, duplicate GETs and re-downloads of unchanged data. Analytics draws a latency histogram and p50/p95 over time, with the change since the previous window, so you can tell whether a change made the app's calls faster or slower.</p>
+    </section>
+
+    <section>
+        <h2>Tokens and auth</h2>
+        <p>SimKit decodes every JWT your app sends and shows its claims, its history and a live countdown to expiry. Press Expire Token and watch whether your refresh logic holds. There is more on this in <a href="/ios-mock-api-responses#token-expiry">testing an expired token</a>.</p>
+        <figure class="shot">
+            <img src="/assets/shots/auth.webp" width="1600" height="1000" loading="lazy" decoding="async" alt="Decoded JWT with claims and a countdown to expiry in SimKit">
+        </figure>
+    </section>
+
+    <section>
+        <h2>Real iPhones and iPads</h2>
+        <p>The same list works off the simulator. An iPhone or iPad running your app with the SDK pairs with your Mac by a 6-digit code and sends its traffic over Wi-Fi, encrypted. Mocks reach the device too.</p>
+    </section>
+
+    <section>
+        <h2>Let your coding agent read the same requests</h2>
+        <p>SimKit includes an MCP server, so Claude Code, Cursor, Codex and other MCP clients can list the requests your app made and tell you which ones failed. Turn on Coding Agents in SimKit's Agents tab, then add it to your agent. For Claude Code:</p>
+        <div class="code">
+            <div class="code-bar"><span>Terminal</span><button type="button" class="copy" data-copy="claude mcp add simkit -- npx -y simkit-mcp">Copy</button></div>
+            <pre><code>claude mcp add simkit -- npx -y simkit-mcp</code></pre>
+        </div>
+        <p style="margin-top: 14px">The <a href="/mcp">SimKit MCP server</a> page has the setup for other clients.</p>
+        <figure class="shot tall">
+            <img src="/assets/shots/agents.webp" width="754" height="866" loading="lazy" decoding="async" alt="SimKit's Agents tab with install buttons for Claude Code, Cursor, Kiro and Codex">
+        </figure>
+    </section>
+
+    <section>
+        <h2>Limits</h2>
+        <ul class="facts">
+            <li>Network monitoring needs the SDK in your build, or the DMG build of SimKit to load it on a simulator.</li>
+            <li>It shows your app's traffic, not traffic from other apps. Use a proxy for those.</li>
+            <li>Enable the SDK inside <code>#if DEBUG</code>, so nothing runs in your release builds.</li>
+            <li>On a real device you get traffic and mocks. The tools that drive the simulator itself stay on the simulator.</li>
+        </ul>
+    </section>
+
+    <section id="faq">
+        <h2>FAQ</h2>
+        <div class="faq">
+            <details><summary>Do I need a proxy or a certificate to see HTTPS traffic in the iOS Simulator?</summary><p>No. The SimKit SDK reports requests from inside your app, after the system has decrypted them, so there is nothing to install on the simulator and nothing to trust.</p></details>
+            <details><summary>Do I have to change my code?</summary><p>One line of Swift in a debug build. On a simulator, the DMG build of SimKit can also load the SDK into your app for you, and then your code doesn't change.</p></details>
+            <details><summary>Does it work on a real device?</summary><p>Yes. An iPhone or iPad running your app with the SDK pairs with your Mac by a 6-digit code and sends its traffic over Wi-Fi, encrypted.</p></details>
+            <details><summary>Does it show WebSocket traffic?</summary><p>Yes. Socket frames and web view page loads appear next to your HTTP calls.</p></details>
+            <details><summary>Do my requests leave my Mac?</summary><p>Captured requests, headers, bodies and tokens stay on your Mac. If you connect a coding agent, what it reads goes to its own model provider, as with any file it reads. SimKit sends anonymous usage data, including the bundle IDs of apps you debug, to Firebase, and you can turn it off in Settings. See the <a href="/privacy-policy">Privacy Policy</a> for details.</p></details>
+            <details><summary>Is it free?</summary><p>Yes. SimKit is free, with no account.</p></details>
+        </div>
+    </section>
+
+    <section class="final">
+        <h2>See what your app sends.</h2>
+        <p>Free on the Mac App Store, or as a DMG straight from here.</p>
+        <div class="cta-row">
+            <a href="https://apps.apple.com/en/app/simkit-simulator-toolkit/id6756196371?mt=12&amp;ct=network-page" class="btn btn-lg" target="_blank" rel="noopener">
+                <svg aria-hidden="true" viewBox="0 0 24 24" fill="currentColor"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
+                Mac App Store <span class="ver" data-ver="appstore">1.7</span>
+            </a>
+            <a href="https://github.com/ealtaca/simkit-website/releases/latest/download/SimKit.dmg" class="btn btn-lg btn-ghost">
+                <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                Download DMG <span class="ver" data-ver="dmg">1.8</span>
+            </a>
+        </div>
+    </section>
+</main>
+
+<footer>
+    <div class="foot">
+        <a href="/" class="brand"><img src="/assets/icon-96.png" alt="" width="36" height="36">SimKit</a>
+        <div class="foot-cols">
+            <div>
+                <h2>Guides</h2>
+                <div class="links">
+                    <a href="/ios-simulator-network-inspector" aria-current="page">Network inspector</a>
+                    <a href="/ios-mock-api-responses">Mock API responses</a>
+                    <a href="/ios-simulator-slow-network">Slow network testing</a>
+                    <a href="/mcp">MCP</a>
+                </div>
+            </div>
+            <div>
+                <h2>SimKit</h2>
+                <div class="links">
+                    <a href="https://apps.apple.com/en/app/simkit-simulator-toolkit/id6756196371?mt=12&amp;ct=network-page" target="_blank" rel="noopener">Mac App Store</a>
+                    <a href="https://github.com/ealtaca/simkit-website/releases/latest/download/SimKit.dmg">Direct Download</a>
+                    <a href="https://github.com/ealtaca/SimKitSDK-Binary" target="_blank" rel="noopener">SDK</a>
+                    <a href="/changelog">Changelog</a>
+                    <a href="/privacy-policy">Privacy</a>
+                    <a href="/terms-of-use">Terms</a>
+                    <a href="mailto:ealtaca@gmail.com">Contact</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<script>
+    document.querySelectorAll('.copy').forEach(function (button) {
+        button.addEventListener('click', function () {
+            var done = function () {
+                button.textContent = 'Copied';
+                setTimeout(function () { button.textContent = 'Copy'; }, 1600);
+            };
+            if (navigator.clipboard) {
+                navigator.clipboard.writeText(button.dataset.copy).then(done, function () {});
+            }
+        });
+    });
+
+    // Versions on the download buttons, as on the home page. The badges stay
+    // hidden if a request fails, so the page never shows a stale number.
+    var fill = function (key, v) {
+        document.querySelectorAll('[data-ver="' + key + '"]').forEach(function (el) { el.textContent = v; });
+    };
+    fetch('https://itunes.apple.com/lookup?id=6756196371')
+        .then(function (r) { return r.json(); })
+        .then(function (d) { var v = d.results && d.results[0] && d.results[0].version; if (v) fill('appstore', v); })
+        .catch(function () {});
+    fetch('https://api.github.com/repos/ealtaca/simkit-website/releases?per_page=20')
+        .then(function (r) { return r.json(); })
+        .then(function (list) {
+            if (!Array.isArray(list)) return;
+            var live = list.filter(function (r) { return !r.draft && !r.prerelease; })
+                .sort(function (a, b) { return a.published_at < b.published_at ? 1 : -1; });
+            if (live[0]) fill('dmg', live[0].tag_name.replace(/^v/, ''));
+        })
+        .catch(function () {});
+</script>
+</body>
+</html>
