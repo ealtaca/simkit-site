@@ -40,11 +40,12 @@
         "@type": "FAQPage",
         "url": "https://simkit.dev/ios-simulator-network-inspector",
         "datePublished": "2026-11-17",
-        "dateModified": "2026-11-17",
+        "dateModified": "2026-11-18",
         "mainEntity": [
             { "@type": "Question", "name": "Do I need a proxy or a certificate to see HTTPS traffic in the iOS Simulator?", "acceptedAnswer": { "@type": "Answer", "text": "No. The SimKit SDK reports requests from inside your app, after the system has decrypted them, so there is nothing to install on the simulator and nothing to trust." } },
             { "@type": "Question", "name": "Do I have to change my code?", "acceptedAnswer": { "@type": "Answer", "text": "One line of Swift in a debug build. On a simulator, the DMG build of SimKit can also load the SDK into your app for you, and then your code doesn't change." } },
             { "@type": "Question", "name": "Does it work on a real device?", "acceptedAnswer": { "@type": "Answer", "text": "Yes. An iPhone or iPad running your app with the SDK pairs with your Mac by a 6-digit code and sends its traffic over Wi-Fi, encrypted." } },
+            { "@type": "Question", "name": "Which network libraries does it see?", "acceptedAnswer": { "@type": "Answer", "text": "Requests made with URLSession, including libraries built on it such as Alamofire and Moya, WebSocket connections and WKWebView page loads." } },
             { "@type": "Question", "name": "Does it show WebSocket traffic?", "acceptedAnswer": { "@type": "Answer", "text": "Yes. Socket frames and web view page loads appear next to your HTTP calls." } },
             { "@type": "Question", "name": "Do my requests leave my Mac?", "acceptedAnswer": { "@type": "Answer", "text": "Captured requests, headers, bodies and tokens stay on your Mac. If you connect a coding agent, what it reads goes to its own model provider, as with any file it reads. SimKit sends anonymous usage data, including the bundle IDs of apps you debug, to Firebase, and you can turn it off in Settings. See the Privacy Policy for details." } },
             { "@type": "Question", "name": "Is it free?", "acceptedAnswer": { "@type": "Answer", "text": "Yes. SimKit is free, with no account." } }
@@ -329,6 +330,7 @@ SimKitSDK.shared.enable()
         <ul class="facts">
             <li><strong>Query filter.</strong> For example <code>status:&gt;=400 host:api slow:&gt;300ms</code> keeps failed or slow calls to one host.</li>
             <li><strong>Status, timing and size</strong> for every call, as it happens.</li>
+            <li><strong>What it sees.</strong> URLSession requests, including Alamofire and Moya, WebSocket connections and WKWebView page loads.</li>
             <li><strong>Request origin.</strong> The code a request came from, so you know which screen or service fired it.</li>
             <li><strong>JSON tree.</strong> Filter a body by path, like <code>$.users[*].email</code>, and copy the path, key or value.</li>
         </ul>
@@ -365,7 +367,7 @@ SimKitSDK.shared.enable()
 
     <section>
         <h2>Let your coding agent read the same requests</h2>
-        <p>SimKit includes an MCP server, so Claude Code, Cursor, Codex and other MCP clients can list the requests your app made and tell you which ones failed. Turn on Coding Agents in SimKit's Agents tab, then add it to your agent. For Claude Code:</p>
+        <p>SimKit includes an MCP server, so Claude Code, Cursor, Codex and other MCP clients can list the requests your app made and tell you which ones failed. Turn on Coding Agents in SimKit's Agents tab, then add it to your agent. The MCP server is in the DMG build; the Mac App Store build doesn't have it yet. For Claude Code:</p>
         <div class="code">
             <div class="code-bar"><span>Terminal</span><button type="button" class="copy" data-copy="claude mcp add simkit -- npx -y simkit-mcp">Copy</button></div>
             <pre><code>claude mcp add simkit -- npx -y simkit-mcp</code></pre>
@@ -392,6 +394,7 @@ SimKitSDK.shared.enable()
             <details><summary>Do I need a proxy or a certificate to see HTTPS traffic in the iOS Simulator?</summary><p>No. The SimKit SDK reports requests from inside your app, after the system has decrypted them, so there is nothing to install on the simulator and nothing to trust.</p></details>
             <details><summary>Do I have to change my code?</summary><p>One line of Swift in a debug build. On a simulator, the DMG build of SimKit can also load the SDK into your app for you, and then your code doesn't change.</p></details>
             <details><summary>Does it work on a real device?</summary><p>Yes. An iPhone or iPad running your app with the SDK pairs with your Mac by a 6-digit code and sends its traffic over Wi-Fi, encrypted.</p></details>
+            <details><summary>Which network libraries does it see?</summary><p>Requests made with URLSession, including libraries built on it such as Alamofire and Moya, WebSocket connections and WKWebView page loads.</p></details>
             <details><summary>Does it show WebSocket traffic?</summary><p>Yes. Socket frames and web view page loads appear next to your HTTP calls.</p></details>
             <details><summary>Do my requests leave my Mac?</summary><p>Captured requests, headers, bodies and tokens stay on your Mac. If you connect a coding agent, what it reads goes to its own model provider, as with any file it reads. SimKit sends anonymous usage data, including the bundle IDs of apps you debug, to Firebase, and you can turn it off in Settings. See the <a href="/privacy-policy">Privacy Policy</a> for details.</p></details>
             <details><summary>Is it free?</summary><p>Yes. SimKit is free, with no account.</p></details>

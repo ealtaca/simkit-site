@@ -41,7 +41,7 @@
         "headline": "How to simulate a slow network in the iOS Simulator",
         "description": "How to test your app on a slow network in the iOS Simulator: Network Link Conditioner, a proxy, or throttling one app with SimKit so your Mac stays fast.",
         "datePublished": "2026-11-17",
-        "dateModified": "2026-11-17",
+        "dateModified": "2026-11-18",
         "author": { "@type": "Person", "name": "Emre Can Altaca", "url": "https://github.com/ealtaca" },
         "image": "https://simkit.dev/assets/og-throttling.jpg",
         "mainEntityOfPage": "https://simkit.dev/ios-simulator-slow-network"
@@ -69,6 +69,7 @@
             { "@type": "Question", "name": "How do I slow only the simulator or only my app?", "acceptedAnswer": { "@type": "Answer", "text": "Throttle at a proxy such as Proxyman or Charles, which slows the traffic that passes through it, or throttle inside the app with SimKit, which slows that one app." } },
             { "@type": "Question", "name": "Can I test offline mode in the simulator?", "acceptedAnswer": { "@type": "Answer", "text": "Yes. SimKit has an Offline preset, and Network Weather adds outages that come and go. With Apple's tool, the 100% Loss profile cuts the connection for the whole Mac." } },
             { "@type": "Question", "name": "Can I simulate packet loss?", "acceptedAnswer": { "@type": "Answer", "text": "Yes. SimKit's throttling includes packet loss and high latency for one app. Network Link Conditioner also has lossy profiles, applied to the whole Mac." } },
+            { "@type": "Question", "name": "Does SimKit's throttling work on a real iPhone?", "acceptedAnswer": { "@type": "Answer", "text": "Yes, when your app has the SDK and the iPhone or iPad is paired with your Mac. Without the SDK, the DMG build can load it into an app on the simulator, but not on a real device." } },
             { "@type": "Question", "name": "Is SimKit's throttling free?", "acceptedAnswer": { "@type": "Answer", "text": "Yes. SimKit is free with no account, and throttling is part of it." } }
         ]
     }
@@ -384,7 +385,7 @@ SimKitSDK.shared.enable()
     <section id="agent">
         <span class="eyebrow">Coding agents</span>
         <h2>Ask your agent to do it</h2>
-        <p>With the <a href="/mcp">SimKit MCP server</a>, a coding agent such as Claude Code, Cursor or Codex can set the throttle and read the resulting requests itself. It needs SimKit 1.8 or later, with Coding Agents turned on in the Agents tab.</p>
+        <p>With the <a href="/mcp">SimKit MCP server</a>, a coding agent such as Claude Code, Cursor or Codex can set the throttle and read the resulting requests itself. It needs SimKit 1.8 or later, with Coding Agents turned on in the Agents tab. The MCP server is in the DMG build; the Mac App Store build doesn't have it yet.</p>
         <ul class="prompts">
             <li>Throttle the network to 3G and tell me which requests get slow.</li>
         </ul>
@@ -398,7 +399,8 @@ SimKitSDK.shared.enable()
         <span class="eyebrow">Limits</span>
         <h2>Requirements and limits</h2>
         <ul class="facts">
-            <li><strong>SimKit throttling needs the SDK in your debug build.</strong> Enable it inside <code>#if DEBUG</code> and nothing runs in your release builds.</li>
+            <li><strong>SimKit throttling needs the SDK in your debug build.</strong> Enable it inside <code>#if DEBUG</code> and nothing runs in your release builds. With the SDK it works on the simulator and on a paired iPhone or iPad.</li>
+            <li><strong>No SDK yet?</strong> The DMG build of SimKit can load the SDK into an app on the simulator. That route doesn't reach a real device.</li>
             <li><strong>It shapes your app's traffic only.</strong> System services and other apps are not slowed. That is the point, and it is also the limit.</li>
             <li><strong>For a whole-device test, use Network Link Conditioner.</strong> It slows everything, which is what that kind of test calls for.</li>
             <li><strong>Versions.</strong> SimKit runs on macOS 14 or later. The SDK supports iOS 13 or later.</li>
@@ -414,6 +416,7 @@ SimKitSDK.shared.enable()
             <details><summary>How do I slow only the simulator or only my app?</summary><p>Throttle at a proxy such as Proxyman or Charles, which slows the traffic that passes through it, or throttle inside the app with SimKit, which slows that one app.</p></details>
             <details><summary>Can I test offline mode in the simulator?</summary><p>Yes. SimKit has an Offline preset, and Network Weather adds outages that come and go. With Apple's tool, the 100% Loss profile cuts the connection for the whole Mac.</p></details>
             <details><summary>Can I simulate packet loss?</summary><p>Yes. SimKit's throttling includes packet loss and high latency for one app. Network Link Conditioner also has lossy profiles, applied to the whole Mac.</p></details>
+            <details><summary>Does SimKit's throttling work on a real iPhone?</summary><p>Yes, when your app has the SDK and the iPhone or iPad is paired with your Mac. Without the SDK, the DMG build can load it into an app on the simulator, but not on a real device.</p></details>
             <details><summary>Is SimKit's throttling free?</summary><p>Yes. SimKit is free with no account, and throttling is part of it.</p></details>
         </div>
     </section>
