@@ -37,7 +37,7 @@
       "offers": [{ "@type": "Offer", "price": "0", "priceCurrency": "USD", "description": "Free" }],
       "featureList": [
         "Network monitoring with query filter and timing, no proxy or certificates",
-        "MCP server with 91 tools for Claude Code, Cursor, Codex and other coding agents",
+        "MCP server with 100 tools for Claude Code, Cursor, Codex and other coding agents",
         "Edit and resend requests, request origin, insights and analytics",
         "API contracts, load tests, HAR export",
         "Network traffic and mocks on real iPhones and iPads",
@@ -287,6 +287,36 @@
             content: ""; position: absolute; z-index: -1; left: 50%; top: -120px; width: 1100px; height: 800px; transform: translateX(-50%);
             background: radial-gradient(closest-side, rgba(124,156,255,.22), rgba(124,156,255,.06) 60%, transparent);
         }
+        .hero > .wrap { position: relative; z-index: 1; }
+        /* Simulated request log behind the copy, with a clearing around the headline */
+        .stream {
+            position: absolute; inset: 60px 0 auto 0; height: 760px; overflow: hidden; pointer-events: none; text-align: left;
+            font-family: var(--mono); font-size: 13px;
+            -webkit-mask-image: radial-gradient(ellipse 690px 350px at 50% 340px, transparent 70%, #000 100%), linear-gradient(180deg, transparent 0, #000 8%, #000 66%, transparent 100%);
+                    mask-image: radial-gradient(ellipse 690px 350px at 50% 340px, transparent 70%, #000 100%), linear-gradient(180deg, transparent 0, #000 8%, #000 66%, transparent 100%);
+            -webkit-mask-composite: source-in; mask-composite: intersect;
+        }
+        .stream ol { list-style: none; max-width: 1320px; margin: 0 auto; padding: 0 24px; }
+        .row {
+            display: grid; grid-template-columns: 92px 64px 1fr 150px 70px 70px; gap: 16px; align-items: center;
+            height: 34px; border-bottom: 1px solid rgba(38,42,51,.7); color: #666E82; white-space: nowrap;
+        }
+        .row .m { font-weight: 500; }
+        .row .p { overflow: hidden; text-overflow: ellipsis; }
+        .row .r { text-align: right; }
+        .row .tag { font-size: 11px; letter-spacing: .06em; }
+        .GET .m { color: #6C8CEB; } .POST .m { color: #38B584; } .PUT .m { color: #D09A52; } .DELETE .m { color: #D06262; }
+        .row.ok .s { color: #38B584; }
+        .row.bad { color: #8C5757; background: linear-gradient(90deg, transparent, rgba(255,107,107,.07) 30%, transparent); }
+        .row.bad .s, .row.bad .tag { color: var(--red); }
+        .row.mock { color: #86709A; background: linear-gradient(90deg, transparent, rgba(199,146,234,.08) 30%, transparent); }
+        .row.mock .s, .row.mock .tag { color: var(--purple); }
+        .row.fixed { transition: color .6s, background .6s; color: #4F8A70; background: linear-gradient(90deg, transparent, rgba(61,220,151,.07) 30%, transparent); }
+        .row.fixed .s, .row.fixed .tag { color: var(--green); }
+        .sim { margin-top: 10px; font-family: var(--mono); font-size: 12px; color: var(--text-3); display: none; align-items: center; justify-content: center; gap: 10px; }
+        .sim.on { display: flex; }
+        .sim button { font: inherit; color: var(--text-2); background: none; border: 1px solid var(--divider); border-radius: 7px; padding: 4px 10px; min-height: 26px; cursor: pointer; }
+        .sim button:hover { color: var(--text); border-color: #3A4050; }
         .pill {
             display: inline-flex; align-items: center; gap: 8px;
             font-family: var(--mono); font-size: 12.5px; color: var(--text-2);
@@ -538,6 +568,15 @@
             .nav-links { gap: 10px; }
             .nav-links .show-sm { display: inline-grid; }
             .hero { padding-top: 112px; }
+            /* On a phone the rows stay: clear above and below the copy, faint behind it */
+            .stream {
+                height: 1040px;
+                -webkit-mask-image: linear-gradient(180deg, transparent 0, rgba(0,0,0,.5) 24px, rgba(0,0,0,.5) 70px, rgba(0,0,0,.1) 150px, rgba(0,0,0,.1) 860px, #000 920px, #000 970px, transparent 100%);
+                        mask-image: linear-gradient(180deg, transparent 0, rgba(0,0,0,.5) 24px, rgba(0,0,0,.5) 70px, rgba(0,0,0,.1) 150px, rgba(0,0,0,.1) 860px, #000 920px, #000 970px, transparent 100%);
+                -webkit-mask-composite: source-over; mask-composite: add;
+            }
+            .row { grid-template-columns: 56px 1fr 44px; gap: 10px; } .row .t, .row .tag, .row .z { display: none; }
+            .stream ol { padding: 0 16px; }
             .mark { width: 40px; margin-bottom: 24px; }
             .hero-shot { margin-top: 44px; }
             .frame { border-radius: 12px; }
@@ -599,6 +638,7 @@
 <header class="hero">
     <div class="grid-bg"></div>
     <div class="sky" aria-hidden="true"><div class="stars"></div><span class="streak"></span><span class="streak"></span><span class="streak"></span><span class="streak"></span><span class="streak"></span><span class="streak"></span></div>
+    <div class="stream" aria-hidden="true"><ol id="log"></ol></div>
     <div class="wrap">
         <div class="mark" aria-hidden="true">
             <svg viewBox="180 90 460 860">
@@ -625,6 +665,7 @@
             </a>
         </div>
         <p class="fine">Free · macOS 14 or later · DMG signed and notarized by Apple</p>
+        <p class="sim" id="sim">Simulated traffic <button type="button" id="simToggle">Pause</button></p>
 
         <div class="hero-shot">
             <div class="frame">
@@ -634,7 +675,7 @@
 
         <div class="strip">
             <div><strong>No proxy, no certificates</strong><span>Traffic is read from inside your app.</span></div>
-            <div><strong>91 tools for your agent</strong><span>One command: <code>npx -y simkit-mcp</code></span></div>
+            <div><strong>100 tools for your agent</strong><span>One command: <code>npx -y simkit-mcp</code></span></div>
             <div><strong>Free, no account</strong><span>Every tool, no sign-up, no trial.</span></div>
             <div><strong>Stays on your Mac</strong><span>Requests and tokens are never uploaded.</span></div>
         </div>
@@ -792,7 +833,7 @@
         </div>
 
         <div class="strip rv">
-            <div><strong>91 tools</strong><span>Requests, mocks, app data, simulator settings, screenshots and real devices.</span></div>
+            <div><strong>100 tools</strong><span>Requests, mocks, app data, simulator settings, screenshots and real devices.</span></div>
             <div><strong>Light on context</strong><span>Your agent starts with the everyday tools and looks up the others when it needs them.</span></div>
             <div><strong>Local, and off by default</strong><span>Listens on 127.0.0.1 only, behind a token, once you turn it on.</span></div>
             <div><strong>Reads are marked as reads</strong><span>Your agent can ask before it resets an app, and not before it lists requests.</span></div>
@@ -999,6 +1040,69 @@
 </footer>
 
 <script>
+// Request stream behind the hero: simulated, a steady flow that rests when nobody is looking.
+(() => {
+    const log = document.getElementById('log'), hero = document.querySelector('.hero');
+    const sim = document.getElementById('sim'), toggle = document.getElementById('simToggle');
+    if (!log) return;
+    const calls = [
+        ['GET', '/v2/products?category=cricket&page=1', 200], ['GET', '/v2/cart', 200], ['POST', '/v2/cart/items', 201],
+        ['GET', '/v2/recommendations?for=cart', 200], ['GET', '/v2/users/me', 200], ['PUT', '/v2/users/me/address', 200],
+        ['GET', '/v2/orders?limit=20', 200], ['POST', '/v2/analytics/events', 204], ['GET', '/v2/products/8841/reviews', 200],
+        ['DELETE', '/v2/cart/items/3', 204], ['GET', '/v2/config', 200], ['GET', '/v2/search?q=helmet', 200],
+    ];
+    const pad = v => String(v).padStart(2, '0');
+    let tick = 0;
+
+    function add(method, path, status, kind, tag) {
+        const d = new Date(), li = document.createElement('li');
+        li.className = `row ${method} ${kind}`;
+        const ms = kind === 'mock' ? 2 : 18 + Math.round(Math.random() * 240);
+        li.innerHTML = `<span class="t">${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}</span>`
+            + `<span class="m">${method}</span><span class="p">${path}</span><span class="tag">${tag || ''}</span>`
+            + `<span class="s r">${status}</span><span class="z r">${ms} ms</span>`;
+        log.prepend(li);
+        while (log.children.length > 28) log.lastElementChild.remove();
+        return li;
+    }
+    function step() {
+        tick++;
+        if (tick % 11 === 0) {
+            // A token expires, the refresh goes out, the retry turns green.
+            const bad = add('POST', '/v2/orders', 401, 'bad', 'TOKEN EXPIRED');
+            setTimeout(() => push(() => add('POST', '/v2/auth/refresh', 200, 'ok', '')), 700);
+            setTimeout(() => { bad.className = 'row POST fixed'; bad.querySelector('.s').textContent = 200; bad.querySelector('.tag').textContent = 'RETRIED'; }, 1700);
+        } else if (tick % 7 === 0) {
+            add('POST', '/v2/login', 500, 'mock', 'MOCKED');
+        } else {
+            const c = calls[Math.floor(Math.random() * calls.length)];
+            add(c[0], c[1], c[2], 'ok', '');
+        }
+    }
+    // A new row slides the list down with a transform: no layout work, no layout shift.
+    function push(make) {
+        make();
+        log.style.transition = 'none'; log.style.transform = 'translateY(-34px)';
+        void log.offsetHeight;
+        log.style.transition = 'transform .38s cubic-bezier(.2,.7,.2,1)'; log.style.transform = 'none';
+    }
+    for (let i = 0; i < 26; i++) step();
+    if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+    let timer = 0, paused = false, visible = true;
+    function run() { push(step); timer = setTimeout(run, 620); }
+    function sync() {
+        clearTimeout(timer); timer = 0;
+        if (!paused && visible && !document.hidden) timer = setTimeout(run, 620);
+        toggle.textContent = paused ? 'Play' : 'Pause';
+    }
+    toggle.addEventListener('click', () => { paused = !paused; sync(); });
+    if ('IntersectionObserver' in window) new IntersectionObserver(es => { visible = es[0].isIntersecting; sync(); }).observe(hero);
+    document.addEventListener('visibilitychange', sync);
+    sim.classList.add('on');
+    sync();
+})();
+
     const nav = document.getElementById('nav');
     const onScroll = () => nav.classList.toggle('scrolled', window.scrollY > 12);
     onScroll();
