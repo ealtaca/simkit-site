@@ -42,6 +42,10 @@ SimKit also writes a small usage report to Google Cloud Firestore: the bundle ID
 - SimKit reads the latest SDK version from Google Cloud Firestore so it can tell you when a new SDK is available. Nothing about you is written in this check.
 - The DMG version checks for app updates with Sparkle by downloading our appcast from GitHub (ealtaca.github.io). As with any download, GitHub sees your IP address. The Mac App Store version is updated by Apple.
 
+## This Website
+
+simkit.dev sets no cookies. We count page visits and clicks on the download buttons with GoatCounter, which stores no IP address and nothing that identifies you. If you arrive from a link with a campaign name (for example from an ad), that name is kept for your browser tab's session and passed to the App Store link you click, so Apple can tell us how many installs the campaign brought.
+
 ## How to Turn It Off
 
 In SimKit, open **Settings > General** and turn off **Share anonymous usage data**. This stops both the Firebase events (including Firebase's own automatic ones) and the Firestore usage reports. If your version of SimKit does not have this setting yet, update to the latest version, or email us and we will delete the data we hold.
